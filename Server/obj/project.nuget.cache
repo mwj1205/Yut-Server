@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "iq/dXmIt84ucvQIrq1eYPjxyR4Tpnk7FVWo5Ge3LTldfV4b/nZztNLAPoNgDHkoY4VR0dLeGEquNNhkolU43mg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\Server\\Server.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mwj12\\.nuget\\packages\\google.protobuf\\3.23.1\\google.protobuf.3.23.1.nupkg.sha512"
+  ],
+  "logs": []
+}

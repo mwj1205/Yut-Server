@@ -1,0 +1,15 @@
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\bin\Debug\net7.0\PacketGenerator.exe
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\bin\Debug\net7.0\PacketGenerator.deps.json
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\bin\Debug\net7.0\PacketGenerator.runtimeconfig.json
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\bin\Debug\net7.0\PacketGenerator.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\bin\Debug\net7.0\PacketGenerator.pdb
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.csproj.AssemblyReference.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.AssemblyInfoInputs.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.AssemblyInfo.cs
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.csproj.CoreCompileInputs.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\refint\PacketGenerator.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.pdb
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\PacketGenerator.genruntimeconfig.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\PacketGenerator\obj\Debug\net7.0\ref\PacketGenerator.dll
