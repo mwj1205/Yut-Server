@@ -8,4 +8,4 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Server
-build_property.ProjectDir = C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\Server\
+build_property.ProjectDir = C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\Server\

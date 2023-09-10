@@ -10,3 +10,15 @@ C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\ServerCore\obj\Debug\net7.0\Se
 C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\ServerCore\obj\Debug\net7.0\refint\ServerCore.dll
 C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\ServerCore\obj\Debug\net7.0\ServerCore.pdb
 C:\Users\mwj12\source\repos\FPS_Yut_Server\Server\ServerCore\obj\Debug\net7.0\ref\ServerCore.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\bin\Debug\net7.0\ServerCore.deps.json
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\bin\Debug\net7.0\ServerCore.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\bin\Debug\net7.0\ServerCore.pdb
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.csproj.AssemblyReference.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.AssemblyInfoInputs.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.AssemblyInfo.cs
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\refint\ServerCore.dll
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.pdb
+C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ref\ServerCore.dll

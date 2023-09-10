@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\PacketGenerator\\PacketGenerator.csproj": {}
+    "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\PacketGenerator\\PacketGenerator.csproj": {
+    "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\PacketGenerator\\PacketGenerator.csproj",
+        "projectUniqueName": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj",
         "projectName": "PacketGenerator",
-        "projectPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\PacketGenerator\\PacketGenerator.csproj",
+        "projectPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj",
         "packagesPath": "C:\\Users\\mwj12\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\PacketGenerator\\obj\\",
+        "outputPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mwj12\\AppData\\Roaming\\NuGet\\NuGet.Config",

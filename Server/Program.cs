@@ -12,37 +12,48 @@ using Google.Protobuf.WellKnownTypes;
 using Server.Game;
 using ServerCore;
 
+
 namespace Server
 {
-	class Program
+    class Program
 	{
-		static Listener _listener = new Listener();
+        static Listener _listener = new Listener();
+        static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
 
-		static void FlushRoom()
-		{
-			JobTimer.Instance.Push(FlushRoom, 250);
-		}
+        static void TickRoom(GameRoom room, int tick = 100)
+        {
+            var timer = new System.Timers.Timer();
+            timer.Interval = tick;
+            timer.Elapsed += ((s, e) => { room.Update(); });
+            timer.AutoReset = true;
+            timer.Enabled = true;
 
-		static void Main(string[] args)
-		{
-			RoomManager.Instance.Add();
+            _timers.Add(timer);
+        }
 
-			// DNS (Domain Name System)
-			string host = Dns.GetHostName();
-			IPHostEntry ipHost = Dns.GetHostEntry(host);
-			IPAddress ipAddr = ipHost.AddressList[0];
-			IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
+        static void Main(string[] args)
+        {
+            GameRoom room = RoomManager.Instance.Add();
+            TickRoom(room, 50);
 
-			_listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
-			Console.WriteLine("Listening...");
+            // DNS (Domain Name System)
+            string host = Dns.GetHostName();
+            IPHostEntry ipHost = Dns.GetHostEntry(host);
+            IPAddress ipAddr = ipHost.AddressList[0];
+            IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
 
-			//FlushRoom();
-			JobTimer.Instance.Push(FlushRoom);
+            _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
+            Console.WriteLine("Listening...");
 
-			while (true)
-			{
-				JobTimer.Instance.Flush();
-			}
-		}
+            //FlushRoom();
+            //JobTimer.Instance.Push(FlushRoom);
+
+            // TODO
+            while (true)
+            {
+                //JobTimer.Instance.Flush();
+                Thread.Sleep(100);
+            }
+        }
 	}
 }

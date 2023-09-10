@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\ServerCore\\ServerCore.csproj",
+      "projectUniqueName": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\ServerCore\\ServerCore.csproj",
       "projectName": "ServerCore",
-      "projectPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\ServerCore\\ServerCore.csproj",
+      "projectPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\ServerCore\\ServerCore.csproj",
       "packagesPath": "C:\\Users\\mwj12\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Server\\ServerCore\\obj\\",
+      "outputPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\ServerCore\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\mwj12\\AppData\\Roaming\\NuGet\\NuGet.Config",

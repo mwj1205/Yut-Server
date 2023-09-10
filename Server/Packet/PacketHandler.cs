@@ -22,15 +22,15 @@ class PacketHandler
         // TODO : 검증
 
         // 일단 서버에서 좌표 이동
-        PlayerInfo info = clientSession.MyPlayer.Info;
+        ObjectInfo info = clientSession.MyPlayer.Info;
         info.PosInfo = movePacket.PosInfo;
 
         // 다른 플레이어한테도 알려준다
         S_Move resMovePacket = new S_Move();
-        resMovePacket.PlayerId = clientSession.MyPlayer.Info.PlayerId;
+        resMovePacket.ObjectId = clientSession.MyPlayer.Info.ObjectId;
         resMovePacket.PosInfo = movePacket.PosInfo;
 
-        Console.WriteLine(resMovePacket.PlayerId);
+        Console.WriteLine(resMovePacket.ObjectId);
         Console.WriteLine(resMovePacket.PosInfo);
         clientSession.MyPlayer.Room.Broadcast(resMovePacket);
     }
@@ -46,14 +46,14 @@ class PacketHandler
             return;
 
         // TODO : 검증
-        
+
         // 일단 서버에서 좌표 이동
-        PlayerInfo info = clientSession.MyPlayer.Info;
+        ObjectInfo info = clientSession.MyPlayer.Info;
         info.RotInfo = rotationPacket.RotInfo;
 
         // 다른 플레이어한테도 알려준다
         S_Rotation resRotationPacket = new S_Rotation();
-        resRotationPacket.PlayerId = clientSession.MyPlayer.Info.PlayerId;
+        resRotationPacket.ObjectId = clientSession.MyPlayer.Info.ObjectId;
         resRotationPacket.RotInfo = rotationPacket.RotInfo;
 
         clientSession.MyPlayer.Room.Broadcast(resRotationPacket);
