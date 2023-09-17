@@ -9,6 +9,7 @@ namespace Server.Game
 	public class GameRoom : JobSerializer
     {
 		public int RoomId { get; set; }
+        public string RoomName { get; set; }
 
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
         public void Init(int mapId)
@@ -36,6 +37,7 @@ namespace Server.Game
 
 
                 // 본인한테 정보 전송
+                // 이 부분은 나중에 필요 없을듯?
                 {
                     S_EnterGame enterPacket = new S_EnterGame();
                     enterPacket.Player = player.Info;

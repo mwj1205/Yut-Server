@@ -9,6 +9,36 @@ using System.Text;
 
 class PacketHandler
 {
+    public static void C_MakeRoomHandler(PacketSession session, IMessage packet)
+    {
+        C_MakeRoom makeroomPacket = packet as C_MakeRoom;
+        ClientSession clientSession = session as ClientSession;
+
+        if (clientSession.MyPlayer == null)
+            return;
+
+        // 게임 방 생성
+        GameRoom room = RoomManager.Instance.Add();
+        Program.TickRoom(room, 50);
+
+        room.RoomName = makeroomPacket.RoomName;
+
+        room.Push(room.EnterGame, clientSession.MyPlayer);
+    }
+
+    public static void C_EnterRoomHandler(PacketSession session, IMessage packet)
+    {
+        C_EnterRoom enterroomPacket = packet as C_EnterRoom;
+        ClientSession clientSession = session as ClientSession;
+
+        if(clientSession.MyPlayer == null) 
+            return;
+
+        // 플레이어가 선택한 룸에 입장
+        GameRoom room = RoomManager.Instance.Find(enterroomPacket.RoomId);
+        room.Push(room.EnterGame, clientSession.MyPlayer);
+    }
+
     public static void C_MoveHandler(PacketSession session, IMessage packet)
     {
         C_Move movePacket = packet as C_Move;
@@ -21,7 +51,7 @@ class PacketHandler
 
         // TODO : 검증
 
-        // 일단 서버에서 좌표 이동
+        // 서버에서 좌표 이동
         ObjectInfo info = clientSession.MyPlayer.Info;
         info.PosInfo = movePacket.PosInfo;
 

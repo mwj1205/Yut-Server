@@ -20,7 +20,7 @@ namespace Server
         static Listener _listener = new Listener();
         static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
 
-        static void TickRoom(GameRoom room, int tick = 100)
+        public static void TickRoom(GameRoom room, int tick = 100)
         {
             var timer = new System.Timers.Timer();
             timer.Interval = tick;

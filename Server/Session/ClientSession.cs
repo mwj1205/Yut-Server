@@ -56,26 +56,28 @@ namespace Server
 				MyPlayer.Session = this;
 			}
 
-			RoomManager.Instance.Find(1).EnterGame(MyPlayer);
-		}
+            GameRoom room = RoomManager.Instance.Find(1);
+            room.Push(room.EnterGame, MyPlayer);
+        }
 
-		public override void OnRecvPacket(ArraySegment<byte> buffer)
-		{
-			PacketManager.Instance.OnRecvPacket(this, buffer);
-		}
+        public override void OnRecvPacket(ArraySegment<byte> buffer)
+        {
+            PacketManager.Instance.OnRecvPacket(this, buffer);
+        }
 
-		public override void OnDisconnected(EndPoint endPoint)
-		{
-			RoomManager.Instance.Find(1).LeaveGame(MyPlayer.Info.ObjectId);
+        public override void OnDisconnected(EndPoint endPoint)
+        {
+            GameRoom room = RoomManager.Instance.Find(1);
+            room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
 
-			SessionManager.Instance.Remove(this);
+            SessionManager.Instance.Remove(this);
 
-			Console.WriteLine($"OnDisconnected : {endPoint}");
-		}
+            Console.WriteLine($"OnDisconnected : {endPoint}");
+        }
 
-		public override void OnSend(int numOfBytes)
-		{
-			//Console.WriteLine($"Transferred bytes: {numOfBytes}");
-		}
-	}
+        public override void OnSend(int numOfBytes)
+        {
+            //Console.WriteLine($"Transferred bytes: {numOfBytes}");
+        }
+    }
 }

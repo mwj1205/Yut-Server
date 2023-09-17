@@ -23,6 +23,10 @@ class PacketManager
 
 	public void Register()
 	{		
+		_onRecv.Add((ushort)MsgId.CMakeRoom, MakePacket<C_MakeRoom>);
+		_handler.Add((ushort)MsgId.CMakeRoom, PacketHandler.C_MakeRoomHandler);		
+		_onRecv.Add((ushort)MsgId.CEnterRoom, MakePacket<C_EnterRoom>);
+		_handler.Add((ushort)MsgId.CEnterRoom, PacketHandler.C_EnterRoomHandler);		
 		_onRecv.Add((ushort)MsgId.CMove, MakePacket<C_Move>);
 		_handler.Add((ushort)MsgId.CMove, PacketHandler.C_MoveHandler);		
 		_onRecv.Add((ushort)MsgId.CRotation, MakePacket<C_Rotation>);
