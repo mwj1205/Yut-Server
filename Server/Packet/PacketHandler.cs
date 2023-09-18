@@ -5,6 +5,7 @@ using Server.Game;
 using ServerCore;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 class PacketHandler
@@ -20,7 +21,6 @@ class PacketHandler
         // 게임 방 생성
         GameRoom room = RoomManager.Instance.Add();
         Program.TickRoom(room, 50);
-
         room.RoomName = makeroomPacket.RoomName;
 
         room.Push(room.EnterGame, clientSession.MyPlayer);
@@ -38,31 +38,35 @@ class PacketHandler
         GameRoom room = RoomManager.Instance.Find(enterroomPacket.RoomId);
         room.Push(room.EnterGame, clientSession.MyPlayer);
     }
+    public static void C_StartGameHandler(PacketSession session, IMessage packet)
+    {
+
+    }
+
+    public static void C_ThrowYutHandler(PacketSession session, IMessage packet)
+    {
+
+    }
+
+    public static void C_YutMoveHandler(PacketSession session, IMessage packet)
+    {
+
+    }
 
     public static void C_MoveHandler(PacketSession session, IMessage packet)
     {
         C_Move movePacket = packet as C_Move;
         ClientSession clientSession = session as ClientSession;
 
-        if (clientSession.MyPlayer == null)
+        Player player = clientSession.MyPlayer;
+        if (player == null)
             return;
-        if (clientSession.MyPlayer.Room == null)
+
+        GameRoom room = player.Room;
+        if (room == null)
             return;
 
-        // TODO : 검증
-
-        // 서버에서 좌표 이동
-        ObjectInfo info = clientSession.MyPlayer.Info;
-        info.PosInfo = movePacket.PosInfo;
-
-        // 다른 플레이어한테도 알려준다
-        S_Move resMovePacket = new S_Move();
-        resMovePacket.ObjectId = clientSession.MyPlayer.Info.ObjectId;
-        resMovePacket.PosInfo = movePacket.PosInfo;
-
-        Console.WriteLine(resMovePacket.ObjectId);
-        Console.WriteLine(resMovePacket.PosInfo);
-        clientSession.MyPlayer.Room.Broadcast(resMovePacket);
+        room.Push(room.HandleMove, player, movePacket);
     }
 
     public static void C_RotationHandler(PacketSession session, IMessage packet)
@@ -70,22 +74,14 @@ class PacketHandler
         C_Rotation rotationPacket = packet as C_Rotation;
         ClientSession clientSession = session as ClientSession;
 
-        if (clientSession.MyPlayer == null)
+        Player player = clientSession.MyPlayer;
+        if (player == null)
             return;
-        if (clientSession.MyPlayer.Room == null)
+
+        GameRoom room = player.Room;
+        if (room == null)
             return;
 
-        // TODO : 검증
-
-        // 일단 서버에서 좌표 이동
-        ObjectInfo info = clientSession.MyPlayer.Info;
-        info.RotInfo = rotationPacket.RotInfo;
-
-        // 다른 플레이어한테도 알려준다
-        S_Rotation resRotationPacket = new S_Rotation();
-        resRotationPacket.ObjectId = clientSession.MyPlayer.Info.ObjectId;
-        resRotationPacket.RotInfo = rotationPacket.RotInfo;
-
-        clientSession.MyPlayer.Room.Broadcast(resRotationPacket);
+        room.Push(room.HandleRotation, player, rotationPacket);
     }
 }

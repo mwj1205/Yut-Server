@@ -27,6 +27,12 @@ class PacketManager
 		_handler.Add((ushort)MsgId.CMakeRoom, PacketHandler.C_MakeRoomHandler);		
 		_onRecv.Add((ushort)MsgId.CEnterRoom, MakePacket<C_EnterRoom>);
 		_handler.Add((ushort)MsgId.CEnterRoom, PacketHandler.C_EnterRoomHandler);		
+		_onRecv.Add((ushort)MsgId.CStartGame, MakePacket<C_StartGame>);
+		_handler.Add((ushort)MsgId.CStartGame, PacketHandler.C_StartGameHandler);		
+		_onRecv.Add((ushort)MsgId.CThrowYut, MakePacket<C_ThrowYut>);
+		_handler.Add((ushort)MsgId.CThrowYut, PacketHandler.C_ThrowYutHandler);		
+		_onRecv.Add((ushort)MsgId.CYutMove, MakePacket<C_YutMove>);
+		_handler.Add((ushort)MsgId.CYutMove, PacketHandler.C_YutMoveHandler);		
 		_onRecv.Add((ushort)MsgId.CMove, MakePacket<C_Move>);
 		_handler.Add((ushort)MsgId.CMove, PacketHandler.C_MoveHandler);		
 		_onRecv.Add((ushort)MsgId.CRotation, MakePacket<C_Rotation>);
