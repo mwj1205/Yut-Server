@@ -26,6 +26,17 @@ class PacketHandler
         room.Push(room.EnterGame, clientSession.MyPlayer);
     }
 
+    public static void C_RoomListHandler(PacketSession session, IMessage packet)
+    {
+        C_RoomList roomlistPacket = packet as C_RoomList;
+        ClientSession clientSession = session as ClientSession;
+
+        if (clientSession.MyPlayer == null)
+            return;
+
+        RoomManager.Instance.SendRoomList(clientSession.MyPlayer);
+    }
+
     public static void C_EnterRoomHandler(PacketSession session, IMessage packet)
     {
         C_EnterRoom enterroomPacket = packet as C_EnterRoom;
@@ -38,6 +49,7 @@ class PacketHandler
         GameRoom room = RoomManager.Instance.Find(enterroomPacket.RoomId);
         room.Push(room.EnterGame, clientSession.MyPlayer);
     }
+
     public static void C_StartGameHandler(PacketSession session, IMessage packet)
     {
 

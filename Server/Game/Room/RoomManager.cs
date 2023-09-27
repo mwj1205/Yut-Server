@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Google.Protobuf.Protocol;
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Server.Game
@@ -45,6 +47,28 @@ namespace Server.Game
 
                 return null;
             }
+        }
+
+        public void SendRoomList(Player player)
+        {
+            S_RoomList roomlistPacket= new S_RoomList();
+            RoomInfo roominfo = new RoomInfo();
+
+            lock (_lock)
+            {
+                foreach (var kvp in _rooms)
+                {
+                    GameRoom gameroom = kvp.Value;
+                    roominfo.RoomId = kvp.Key;
+                    roominfo.Roomname = gameroom.RoomName;
+                    roominfo.Roomstate = gameroom._gamestate;
+                    roominfo.Nowturn = gameroom._nowTurn;
+
+                    roomlistPacket.RoomInfos.Add(roominfo);
+                }
+            }
+
+            player.Session.Send(roomlistPacket);
         }
     }
 }

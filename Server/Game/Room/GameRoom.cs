@@ -8,16 +8,7 @@ namespace Server.Game
 {
 	public class GameRoom : JobSerializer
     {
-        enum GameState
-        {
-            Waiting,
-            Yutgame,
-            minione,
-            minitwo,
-            minithree,
-            end
-        }
-        GameState _gamestate;
+        public GameState _gamestate = GameState.Waiting;
 
         enum YutResult
         {
@@ -40,7 +31,7 @@ namespace Server.Game
 
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
         Player[] _playerArray = new Player[2];
-        bool _nowTurn = false;
+        public bool _nowTurn = false;
         List<YutResult> _yutResult = new List<YutResult>();
 
         public void Init()
