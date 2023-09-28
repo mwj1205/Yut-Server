@@ -15,7 +15,8 @@ class PacketHandler
         C_MakeRoom makeroomPacket = packet as C_MakeRoom;
         ClientSession clientSession = session as ClientSession;
 
-        if (clientSession.MyPlayer == null)
+        Player player = clientSession.MyPlayer;
+        if (player == null)
             return;
 
         // 게임 방 생성
@@ -31,7 +32,8 @@ class PacketHandler
         C_RoomList roomlistPacket = packet as C_RoomList;
         ClientSession clientSession = session as ClientSession;
 
-        if (clientSession.MyPlayer == null)
+        Player player = clientSession.MyPlayer;
+        if (player == null)
             return;
 
         RoomManager.Instance.SendRoomList(clientSession.MyPlayer);
@@ -42,7 +44,8 @@ class PacketHandler
         C_EnterRoom enterroomPacket = packet as C_EnterRoom;
         ClientSession clientSession = session as ClientSession;
 
-        if(clientSession.MyPlayer == null) 
+        Player player = clientSession.MyPlayer;
+        if (player == null)
             return;
 
         // 플레이어가 선택한 룸에 입장
@@ -52,12 +55,34 @@ class PacketHandler
 
     public static void C_StartGameHandler(PacketSession session, IMessage packet)
     {
+        C_StartGame startgamePacket = packet as C_StartGame;
+        ClientSession clientSession = session as ClientSession;
 
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleStartGame);
     }
 
     public static void C_ThrowYutHandler(PacketSession session, IMessage packet)
     {
+        C_ThrowYut throwyutPacket = packet as C_ThrowYut;
+        ClientSession clientSession = session as ClientSession;
 
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleThrowYut);
     }
 
     public static void C_YutMoveHandler(PacketSession session, IMessage packet)

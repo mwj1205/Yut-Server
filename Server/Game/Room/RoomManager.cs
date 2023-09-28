@@ -51,7 +51,7 @@ namespace Server.Game
 
         public void SendRoomList(Player player)
         {
-            S_RoomList roomlistPacket= new S_RoomList();
+            S_RoomList roomlistPacket = new S_RoomList();
             RoomInfo roominfo = new RoomInfo();
 
             lock (_lock)
@@ -61,12 +61,14 @@ namespace Server.Game
                     GameRoom gameroom = kvp.Value;
                     roominfo.RoomId = kvp.Key;
                     roominfo.Roomname = gameroom.RoomName;
-                    roominfo.Roomstate = gameroom._gamestate;
-                    roominfo.Nowturn = gameroom._nowTurn;
+
+                    Console.WriteLine(roominfo.Roomname + "  " + roominfo.RoomId);
 
                     roomlistPacket.RoomInfos.Add(roominfo);
                 }
             }
+
+            Console.WriteLine("send room list");
 
             player.Session.Send(roomlistPacket);
         }

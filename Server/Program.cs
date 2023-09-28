@@ -33,8 +33,8 @@ namespace Server
 
         static void Main(string[] args)
         {
-            GameRoom room = RoomManager.Instance.Add();
-            TickRoom(room, 50);
+            //GameRoom room = RoomManager.Instance.Add();
+            //TickRoom(room, 50);
 
             // DNS (Domain Name System)
             string host = Dns.GetHostName();

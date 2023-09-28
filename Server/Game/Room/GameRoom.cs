@@ -10,17 +10,6 @@ namespace Server.Game
     {
         public GameState _gamestate = GameState.Waiting;
 
-        enum YutResult
-        {
-            NAK,
-            BACKDO,
-            DO,
-            GAE,
-            GEOL,
-            YUT,
-            MO
-        }
-
 		public int RoomId { get; set; }
         public string RoomName { get; set; }
 
@@ -31,12 +20,15 @@ namespace Server.Game
 
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
         Player[] _playerArray = new Player[2];
-        public bool _nowTurn = false;
+        public bool _nowTurn = false; // 0이면 player1, 1이면 player2가 턴
         List<YutResult> _yutResult = new List<YutResult>();
 
         public void Init()
         {
             _gamestate = GameState.Waiting;
+            if (RoomName == null)
+                RoomName = "default room name";
+            Console.WriteLine("Room Id : " + RoomId);
             Console.WriteLine(RoomName);
         }
 
@@ -141,29 +133,38 @@ namespace Server.Game
             Broadcast(startGamePacket);
         }
 
-        public void HandleThrowYut(Player player)
+        public void HandleThrowYut()
         {
-            
+            S_ThrowYut throwyutPacket = new S_ThrowYut();
+            YutResult randomyut = GetYutResult();
+            throwyutPacket.Result = randomyut;
+
+            if(!(randomyut == YutResult.Yut) && !(randomyut == YutResult.Mo))
+            {
+                _nowTurn = !_nowTurn;
+            }
+
+            Broadcast(throwyutPacket);
         }
 
-        static YutResult GetYutResult(GameState _gamestate)
+        static YutResult GetYutResult()
         {
             int randomNumber = random.Next(1, 101); // 1부터 100 사이의 랜덤 숫자 생성
 
             if (randomNumber <= 3) // 확률 3%
-                return YutResult.NAK;
+                return YutResult.Nak;
             else if (randomNumber <= 7) // 확률 4%
-                return YutResult.BACKDO;
+                return YutResult.Backdo;
             else if (randomNumber <= 25) // 확률 18%
-                return YutResult.DO;
+                return YutResult.Do;
             else if (randomNumber <= 55) // 확률 30%
-                return YutResult.GAE;
+                return YutResult.Gae;
             else if (randomNumber <= 83) // 확률 28%
-                return YutResult.GEOL;
+                return YutResult.Geol;
             else if (randomNumber <= 96) // 확률 13%
-                return YutResult.YUT;
+                return YutResult.Yut;
             else // 확률 4%
-                return YutResult.MO;
+                return YutResult.Mo;
         }
 
         public void HandleYutMove(Player player, C_YutMove yutmovePacket)
