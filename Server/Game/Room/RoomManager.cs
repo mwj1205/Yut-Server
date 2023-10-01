@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf.Protocol;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -52,20 +53,25 @@ namespace Server.Game
         public void SendRoomList(Player player)
         {
             S_RoomList roomlistPacket = new S_RoomList();
-            RoomInfo roominfo = new RoomInfo();
 
             lock (_lock)
             {
                 foreach (var kvp in _rooms)
                 {
                     GameRoom gameroom = kvp.Value;
+                    RoomInfo roominfo = new RoomInfo();
                     roominfo.RoomId = kvp.Key;
                     roominfo.Roomname = gameroom.RoomName;
 
-                    Console.WriteLine(roominfo.Roomname + "  " + roominfo.RoomId);
-
                     roomlistPacket.RoomInfos.Add(roominfo);
                 }
+            }
+
+            for (int i = 0; i < roomlistPacket.RoomInfos.Count; i++)
+            {
+                int val = i;
+                Console.WriteLine("id : " + roomlistPacket.RoomInfos[val].RoomId);
+                Console.WriteLine("name : " + roomlistPacket.RoomInfos[val].Roomname);
             }
 
             Console.WriteLine("send room list");
