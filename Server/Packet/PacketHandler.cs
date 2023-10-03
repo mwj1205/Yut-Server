@@ -24,6 +24,8 @@ class PacketHandler
         Program.TickRoom(room, 50);
         room.RoomName = makeroomPacket.RoomName;
 
+        Console.WriteLine("MakeRoom");
+
         room.Push(room.EnterGame, clientSession.MyPlayer);
     }
 
@@ -47,6 +49,8 @@ class PacketHandler
         Player player = clientSession.MyPlayer;
         if (player == null)
             return;
+
+        Console.WriteLine("EnterRoom");
 
         // 플레이어가 선택한 룸에 입장
         GameRoom room = RoomManager.Instance.Find(enterroomPacket.RoomId);

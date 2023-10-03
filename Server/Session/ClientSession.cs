@@ -37,7 +37,7 @@ namespace Server
 			{
 				MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
 				MyPlayer.Info.PosInfo.PosX = 0 ;
-				MyPlayer.Info.PosInfo.PosY = 0 ;
+				MyPlayer.Info.PosInfo.PosY = 50 ;
 				MyPlayer.Info.PosInfo.PosZ = 0 ;
 				MyPlayer.Info.PosInfo.MoveDirX = 0 ;
 				MyPlayer.Info.PosInfo.MoveDirZ = 0 ;
@@ -64,8 +64,11 @@ namespace Server
 
         public override void OnDisconnected(EndPoint endPoint)
         {
-            GameRoom room = RoomManager.Instance.Find(1);
-            room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
+			if (MyPlayer.Room != null)
+			{
+				GameRoom room = RoomManager.Instance.Find(MyPlayer.Room.RoomId);
+				room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
+			}
 
             SessionManager.Instance.Remove(this);
 

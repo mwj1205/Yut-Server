@@ -56,35 +56,9 @@ namespace Server.Game
                     _playerArray[0] = player;
                 else if (_playerArray[1] == null)
                     _playerArray[1] = player;
-
-                // 본인한테 정보 전송
-                // 이 부분은 나중에 필요 없을듯?
-                //{
-                //    S_EnterGame enterPacket = new S_EnterGame();
-                //    enterPacket.Player = player.Info;
-                //    player.Session.Send(enterPacket);
-
-                //    S_Spawn spawnPacket = new S_Spawn();
-                //    foreach (Player p in _players.Values)
-                //    {
-                //        if (player != p)
-                //            spawnPacket.Objects.Add(p.Info);
-                //    }
-
-                //    player.Session.Send(spawnPacket);
-                //}
             }
 
-            // 타인한테 정보 전송
-            //{
-            //    S_Spawn spawnPacket = new S_Spawn();
-            //    spawnPacket.Objects.Add(gameObject.Info);
-            //    foreach (Player p in _players.Values)
-            //    {
-            //        if (p.Id != gameObject.Id)
-            //            p.Session.Send(spawnPacket);
-            //    }
-            //}
+            SpawnGame2Player(gameObject);
         }
 
         public void LeaveGame(int objectId)
@@ -173,6 +147,38 @@ namespace Server.Game
                 return;
         }
 
+        public void SpawnGame2Player(GameObject gameObject)
+        {
+            Player player = gameObject as Player;
+
+            // 본인한테 정보 전송
+            {
+                S_EnterGame enterPacket = new S_EnterGame();
+                enterPacket.Player = player.Info;
+                player.Session.Send(enterPacket);
+
+                S_Spawn spawnPacket = new S_Spawn();
+                foreach (Player p in _players.Values)
+                {
+                    if (player != p)
+                        spawnPacket.Objects.Add(p.Info);
+                }
+
+                player.Session.Send(spawnPacket);
+            }
+
+            // 타인한테 정보 전송
+            {
+                S_Spawn spawnPacket = new S_Spawn();
+                spawnPacket.Objects.Add(gameObject.Info);
+                foreach (Player p in _players.Values)
+                {
+                    if (p.Id != gameObject.Id)
+                        p.Session.Send(spawnPacket);
+                }
+            }
+        }
+
         public void HandleMove(Player player, C_Move movePacket)
         {
             if (player == null)
@@ -187,8 +193,6 @@ namespace Server.Game
             resMovePacket.ObjectId = player.Info.ObjectId;
             resMovePacket.PosInfo = movePacket.PosInfo;
 
-            Console.WriteLine(resMovePacket.ObjectId);
-            Console.WriteLine(resMovePacket.PosInfo);
             Broadcast(resMovePacket);
         }
 
