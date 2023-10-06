@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Text;
 
@@ -150,7 +151,7 @@ namespace Server.Game
         public void SpawnGame2Player(GameObject gameObject)
         {
             Player player = gameObject as Player;
-
+            InitPlayerInfo(player);
             // 본인한테 정보 전송
             {
                 S_EnterGame enterPacket = new S_EnterGame();
@@ -179,6 +180,18 @@ namespace Server.Game
             }
         }
 
+        public void InitPlayerInfo(Player MyPlayer)
+        {
+            MyPlayer.Info.PosInfo.PosX = 1;
+            MyPlayer.Info.PosInfo.PosY = 50;
+            MyPlayer.Info.PosInfo.PosZ = 1;
+            MyPlayer.Info.RotInfo.RotX = 0;
+            MyPlayer.Info.RotInfo.RotY = 0;
+            MyPlayer.Info.RotInfo.RotZ = 0;
+            MyPlayer.Info.RotInfo.RotW = 0;
+            MyPlayer.Info.StatInfo.Hp = 5;
+        }
+
         public void HandleMove(Player player, C_Move movePacket)
         {
             if (player == null)
@@ -194,6 +207,8 @@ namespace Server.Game
             resMovePacket.PosInfo = movePacket.PosInfo;
 
             Broadcast(resMovePacket);
+
+            if(player.PosInfo.PosY <= 10) PlayerDie(player);
         }
 
         public void HandleRotation(Player player, C_Rotation rotationPacket)
@@ -211,6 +226,92 @@ namespace Server.Game
             resRotationPacket.RotInfo = rotationPacket.RotInfo;
 
             Broadcast(resRotationPacket);
+        }
+
+        public void HandlePlayerAttack(Player player)
+        {
+            if (player == null)
+                return;
+
+            S_DoAttack atkPacket = new S_DoAttack();
+            atkPacket.ObjectId = player.Info.ObjectId;
+            Broadcast(atkPacket);
+
+            for (int i = 0; i < _playerArray.Length; i++) {
+                if (_playerArray[i] == null) return;
+
+                if (_playerArray[i] != player)
+                {
+                    if(IsAttacked(3f, player, _playerArray[i]))
+                    {
+                        Vector3 attackedDirection = CalcAtkDirection(player, _playerArray[i]);
+                        PlayerAttacked(_playerArray[i], attackedDirection);
+                    }
+                    
+                }
+            }
+        }
+
+        private static bool IsAttacked(float dist, Player player1, Player player2)
+        {
+            float deltaX = player1.Info.PosInfo.PosX - player2.Info.PosInfo.PosX;
+            float deltaY = player1.Info.PosInfo.PosY - player2.Info.PosInfo.PosY;
+            float deltaZ = player1.Info.PosInfo.PosZ - player2.Info.PosInfo.PosZ;
+
+            // 거리 계산 (유클리드 거리)
+            float distance = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+            Console.WriteLine("distance : " + distance);
+            if (distance < dist)
+                return true;
+            else return false;
+
+        }
+
+        private static Vector3 CalcAtkDirection(Player player1, Player player2)
+        {
+            Vector3 atkdir;
+
+            atkdir.X = player1.Info.PosInfo.PosX - player2.Info.PosInfo.PosX;
+            atkdir.Y = 0;
+            atkdir.Z = player1.Info.PosInfo.PosZ - player2.Info.PosInfo.PosZ;
+            Vector3.Normalize(atkdir);
+            atkdir.Y = 5f;
+
+            return atkdir;
+        }
+
+        private void PlayerAttacked(Player player, Vector3 attackedDirection)
+        {
+            if (player == null)
+                return;
+
+            S_PlayerAttacked attackedPacket = new S_PlayerAttacked();
+            attackedPacket.ObjectId = player.Id;
+            attackedPacket.AttackedDirection = new PositionInfo
+            {
+                PosX = -attackedDirection.X,
+                PosY = attackedDirection.Y,
+                PosZ = -attackedDirection.Z
+            };
+            attackedPacket.AttackForce = 10f;
+
+            Broadcast(attackedPacket);
+
+            player.Stat.Hp -= 1;
+            Console.WriteLine("Player Id : " + player.Id);
+            Console.WriteLine("Player Hp : " + player.Stat.Hp);
+            if (player.Stat.Hp <= 0) PlayerDie(player);
+        }
+
+        public void PlayerDie(Player player)
+        {
+            if (player == null) return;
+            _gamestate = GameState.Yutgame;
+
+            S_Die diePacket = new S_Die();
+            diePacket.ObjectId = player.Id;
+
+            Broadcast(diePacket);
         }
 
         public Player FindPlayer(Func<GameObject, bool> condition)

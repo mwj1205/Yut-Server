@@ -38,7 +38,9 @@ class PacketManager
 		_onRecv.Add((ushort)MsgId.CMove, MakePacket<C_Move>);
 		_handler.Add((ushort)MsgId.CMove, PacketHandler.C_MoveHandler);		
 		_onRecv.Add((ushort)MsgId.CRotation, MakePacket<C_Rotation>);
-		_handler.Add((ushort)MsgId.CRotation, PacketHandler.C_RotationHandler);
+		_handler.Add((ushort)MsgId.CRotation, PacketHandler.C_RotationHandler);		
+		_onRecv.Add((ushort)MsgId.CDoAttack, MakePacket<C_DoAttack>);
+		_handler.Add((ushort)MsgId.CDoAttack, PacketHandler.C_DoAttackHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

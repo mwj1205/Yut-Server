@@ -39,14 +39,10 @@ namespace Server
 				MyPlayer.Info.PosInfo.PosX = 0 ;
 				MyPlayer.Info.PosInfo.PosY = 50 ;
 				MyPlayer.Info.PosInfo.PosZ = 0 ;
-				MyPlayer.Info.PosInfo.MoveDirX = 0 ;
-				MyPlayer.Info.PosInfo.MoveDirZ = 0 ;
 				MyPlayer.Info.RotInfo.RotX = 0 ;
 				MyPlayer.Info.RotInfo.RotY = 0 ;
 				MyPlayer.Info.RotInfo.RotZ = 0 ;
 				MyPlayer.Info.RotInfo.RotW = 0 ;
-				MyPlayer.Info.RotInfo.CameraRotY = 0 ;
-				MyPlayer.Info.RotInfo.CameraRotX = 0 ;
 				MyPlayer.Info.StatInfo.Hp = 5;
 				MyPlayer.Info.StatInfo.MaxHp = 5;
 				MyPlayer.Info.StatInfo.Speed = 10;
