@@ -34,6 +34,7 @@ namespace Server.Game
         {
             lock (_lock)
             {
+                Program.RemoveTickRoom(roomId);
                 return _rooms.Remove(roomId);
             }
         }

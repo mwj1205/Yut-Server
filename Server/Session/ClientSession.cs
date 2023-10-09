@@ -9,6 +9,7 @@ using System.Net;
 using Google.Protobuf.Protocol;
 using Google.Protobuf;
 using Server.Game;
+using System.Text.Json.Serialization;
 
 namespace Server
 {
@@ -64,8 +65,9 @@ namespace Server
 			{
 				GameRoom room = RoomManager.Instance.Find(MyPlayer.Room.RoomId);
 				room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
+				RoomManager.Instance.Remove(room.RoomId);
 			}
-
+			
             SessionManager.Instance.Remove(this);
 
             Console.WriteLine($"OnDisconnected : {endPoint}");

@@ -50,8 +50,6 @@ class PacketHandler
         if (player == null)
             return;
 
-        Console.WriteLine("EnterRoom");
-
         // 플레이어가 선택한 룸에 입장
         GameRoom room = RoomManager.Instance.Find(enterroomPacket.RoomId);
         room.Push(room.EnterGame, clientSession.MyPlayer);

@@ -24,6 +24,10 @@ namespace Server.Game
         public bool _nowTurn = false; // 0이면 player1, 1이면 player2가 턴
         List<YutResult> _yutResult = new List<YutResult>();
 
+        private static int minigametime = 6000;
+        int _timer = 0;
+        public bool _playerdisconnect = false;
+
         public void Init()
         {
             _gamestate = GameState.Waiting;
@@ -37,6 +41,7 @@ namespace Server.Game
         public void Update()
         {
             Flush();
+            CheckMini2TimeSet();
         }
 
         public void EnterGame(GameObject gameObject)
@@ -59,7 +64,8 @@ namespace Server.Game
                     _playerArray[1] = player;
             }
 
-            SpawnGame2Player(gameObject);
+            HandleStartGame();
+            //SpawnGame2Player(gameObject);
         }
 
         public void LeaveGame(int objectId)
@@ -71,7 +77,11 @@ namespace Server.Game
                 Player player = null;
                 if (_players.Remove(objectId, out player) == false)
                     return;
-
+                for(int i = 0; i < _playerArray.Length; i++)
+                {
+                    if (player == _playerArray[i])
+                        _playerArray[i] = null;
+                }
                 player.Room = null;
 
                 // 본인한테 정보 전송
@@ -106,10 +116,14 @@ namespace Server.Game
             startGamePacket.Nowturn = _nowTurn;
 
             Broadcast(startGamePacket);
+
+            CatchHorse();
         }
 
         public void HandleThrowYut()
         {
+            if(_gamestate != GameState.Yutgame) return;
+
             S_ThrowYut throwyutPacket = new S_ThrowYut();
             YutResult randomyut = GetYutResult();
             throwyutPacket.Result = randomyut;
@@ -146,6 +160,24 @@ namespace Server.Game
         {
             if (player == null)
                 return;
+
+            if (_gamestate != GameState.Yutgame) return;
+        }
+
+        public void CatchHorse()
+        {
+            _gamestate = GameState.Minitwo;
+
+            //GameTimer = new Timer(TimeSetCallback, null, _minigameTime, Timeout.Infinite);
+
+            for (int i = 0; i < _playerArray.Length; i++)
+            {
+                SpawnGame2Player(_playerArray[i]);
+            }
+
+            S_HorseCatch horseCatchPacket = new S_HorseCatch();
+            horseCatchPacket.Playtime = minigametime;
+            Broadcast(horseCatchPacket);
         }
 
         public void SpawnGame2Player(GameObject gameObject)
@@ -158,14 +190,14 @@ namespace Server.Game
                 enterPacket.Player = player.Info;
                 player.Session.Send(enterPacket);
 
-                S_Spawn spawnPacket = new S_Spawn();
-                foreach (Player p in _players.Values)
-                {
-                    if (player != p)
-                        spawnPacket.Objects.Add(p.Info);
-                }
+                //S_Spawn spawnPacket = new S_Spawn();
+                //foreach (Player p in _players.Values)
+                //{
+                //    if (player != p)
+                //        spawnPacket.Objects.Add(p.Info);
+                //}
 
-                player.Session.Send(spawnPacket);
+                //player.Session.Send(spawnPacket);
             }
 
             // 타인한테 정보 전송
@@ -208,7 +240,11 @@ namespace Server.Game
 
             Broadcast(resMovePacket);
 
-            if(player.PosInfo.PosY <= 10) PlayerDie(player);
+            if (player.Info.PosInfo.PosY <= 10)
+            {
+                PlayerDie(player, false);
+                Console.WriteLine("die fall");
+            }
         }
 
         public void HandleRotation(Player player, C_Rotation rotationPacket)
@@ -300,18 +336,60 @@ namespace Server.Game
             player.Stat.Hp -= 1;
             Console.WriteLine("Player Id : " + player.Id);
             Console.WriteLine("Player Hp : " + player.Stat.Hp);
-            if (player.Stat.Hp <= 0) PlayerDie(player);
+            if (player.Stat.Hp <= 0)
+            {
+                PlayerDie(player, false);
+                Console.WriteLine("die hit");
+            }
         }
 
-        public void PlayerDie(Player player)
+        public void PlayerDie(Player player, bool istimeset)
         {
             if (player == null) return;
-            _gamestate = GameState.Yutgame;
-
             S_Die diePacket = new S_Die();
             diePacket.ObjectId = player.Id;
+            diePacket.Timeset = istimeset;
 
             Broadcast(diePacket);
+
+            _gamestate = GameState.Yutgame;
+            _timer = 0;
+        }
+
+        private void Mini2TimeSet()
+        {
+            int dieplayer;
+
+            for (int i = 0; i < _playerArray.Length; i++)
+            {
+                if (_playerArray[i] == null)
+                {
+                    return;
+                }
+            }
+
+            if (_playerArray[0].Stat.Hp > _playerArray[1].Stat.Hp)
+            {
+                dieplayer = 1;
+            }
+            else dieplayer = 0;
+
+            Console.WriteLine("Time Set");
+            Console.WriteLine("Win Player : " + _playerArray[dieplayer].Id);
+            PlayerDie(_playerArray[dieplayer], true);
+        }
+
+        private void CheckMini2TimeSet()
+        {
+            if (_gamestate != GameState.Minitwo) return;
+
+            _timer += 5;
+            if (_timer % 100 == 0)
+                Console.WriteLine(_timer / 100);
+            if (_timer >= minigametime)
+            {
+                Mini2TimeSet();
+            }
         }
 
         public Player FindPlayer(Func<GameObject, bool> condition)

@@ -18,7 +18,7 @@ namespace Server
     class Program
 	{
         static Listener _listener = new Listener();
-        static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
+        static Dictionary<int, System.Timers.Timer> _timers = new Dictionary<int, System.Timers.Timer>();
 
         public static void TickRoom(GameRoom room, int tick = 100)
         {
@@ -28,7 +28,18 @@ namespace Server
             timer.AutoReset = true;
             timer.Enabled = true;
 
-            _timers.Add(timer);
+            _timers.Add(room.RoomId, timer);
+        }
+
+        public static void RemoveTickRoom(int roomid)
+        {
+            if (_timers.ContainsKey(roomid))
+            {
+                var timer = _timers[roomid];
+                timer.Stop();
+                timer.Dispose();
+                _timers.Remove(roomid);
+            }
         }
 
         static void Main(string[] args)
