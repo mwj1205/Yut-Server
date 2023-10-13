@@ -64,7 +64,7 @@ namespace Server.Game
                     _playerArray[1] = player;
             }
 
-            HandleStartGame();
+            //HandleStartGame();
             //SpawnGame2Player(gameObject);
         }
 
@@ -120,9 +120,27 @@ namespace Server.Game
             CatchHorse();
         }
 
-        public void HandleThrowYut()
+        bool isPlayerTurn(Player player)
         {
-            if(_gamestate != GameState.Yutgame) return;
+            if (player == null) return false;
+            if (_nowTurn == true && player == _playerArray[0])
+            {
+                return true; // player1의 턴일 때 true 반환
+            }
+            else if (_nowTurn == false && player == _playerArray[1])
+            {
+                return true; // player2의 턴일 때 true 반환
+            }
+            else
+            {
+                return false; // 다른 경우에는 false 반환
+            }
+        }
+
+        public void HandleThrowYut(Player throwplayer)
+        {
+            //if(_gamestate != GameState.Yutgame) return;
+            //if (isPlayerTurn(throwplayer) == false) return;
 
             S_ThrowYut throwyutPacket = new S_ThrowYut();
             YutResult randomyut = GetYutResult();
@@ -134,6 +152,7 @@ namespace Server.Game
             }
 
             Broadcast(throwyutPacket);
+            Console.WriteLine(randomyut);
         }
 
         static YutResult GetYutResult()
@@ -161,7 +180,18 @@ namespace Server.Game
             if (player == null)
                 return;
 
-            if (_gamestate != GameState.Yutgame) return;
+            //if (_gamestate != GameState.Yutgame) return;
+
+            S_YutMove syutmovePacket = new S_YutMove();
+            syutmovePacket.PlayerId = player.Id;
+            syutmovePacket.UseResult = yutmovePacket.UseResult;
+            syutmovePacket.MovedYut = yutmovePacket.MovedYut;
+            syutmovePacket.MovedPos = yutmovePacket.MovedPos;
+            Broadcast(syutmovePacket);
+
+            Console.WriteLine("use yut : " + syutmovePacket.UseResult);
+            Console.WriteLine("move yut : " + syutmovePacket.MovedYut);
+            Console.WriteLine("yut dest : " + syutmovePacket.MovedPos);
         }
 
         public void CatchHorse()

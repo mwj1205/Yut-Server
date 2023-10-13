@@ -84,12 +84,23 @@ class PacketHandler
         if (room == null)
             return;
 
-        room.Push(room.HandleThrowYut);
+        room.Push(room.HandleThrowYut, clientSession.MyPlayer);
     }
 
     public static void C_YutMoveHandler(PacketSession session, IMessage packet)
     {
+        C_YutMove yutmovePacket = packet as C_YutMove;
+        ClientSession clientSession = session as ClientSession;
 
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleYutMove, clientSession.MyPlayer, yutmovePacket);
     }
 
     public static void C_MoveHandler(PacketSession session, IMessage packet)

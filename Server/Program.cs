@@ -53,6 +53,9 @@ namespace Server
             IPAddress ipAddr = ipHost.AddressList[0];
             IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
 
+            GameRoom room = RoomManager.Instance.Add();
+            TickRoom(room, 50);
+
             _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
             Console.WriteLine("Listening...");
 
