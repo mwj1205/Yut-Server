@@ -30,7 +30,7 @@ namespace Google.Protobuf.Protocol {
             "AygLMhIuUHJvdG9jb2wuUm9vbUluZm8iHQoLQ19FbnRlclJvb20SDgoGcm9v",
             "bUlkGAEgASgFIjMKC1NfRW50ZXJHYW1lEiQKBnBsYXllchgBIAEoCzIULlBy",
             "b3RvY29sLk9iamVjdEluZm8iDQoLU19MZWF2ZUdhbWUiDQoLQ19TdGFydEdh",
-            "bWUiHgoLU19TdGFydEdhbWUSDwoHbm93dHVybhgBIAEoCCIMCgpDX1Rocm93",
+            "bWUiHgoLU19TdGFydEdhbWUSDwoHbm93dHVybhgBIAEoBSIMCgpDX1Rocm93",
             "WXV0IjEKClNfVGhyb3dZdXQSIwoGcmVzdWx0GAEgASgOMhMuUHJvdG9jb2wu",
             "WXV0UmVzdWx0IkIKCUNfWXV0TW92ZRIRCgl1c2VSZXN1bHQYASABKAUSEAoI",
             "bW92ZWRZdXQYAiABKAUSEAoIbW92ZWRQb3MYAyABKAUiVAoJU19ZdXRNb3Zl",
@@ -1420,10 +1420,10 @@ namespace Google.Protobuf.Protocol {
 
     /// <summary>Field number for the "nowturn" field.</summary>
     public const int NowturnFieldNumber = 1;
-    private bool nowturn_;
+    private int nowturn_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Nowturn {
+    public int Nowturn {
       get { return nowturn_; }
       set {
         nowturn_ = value;
@@ -1453,7 +1453,7 @@ namespace Google.Protobuf.Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Nowturn != false) hash ^= Nowturn.GetHashCode();
+      if (Nowturn != 0) hash ^= Nowturn.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1472,9 +1472,9 @@ namespace Google.Protobuf.Protocol {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Nowturn != false) {
+      if (Nowturn != 0) {
         output.WriteRawTag(8);
-        output.WriteBool(Nowturn);
+        output.WriteInt32(Nowturn);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -1486,9 +1486,9 @@ namespace Google.Protobuf.Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Nowturn != false) {
+      if (Nowturn != 0) {
         output.WriteRawTag(8);
-        output.WriteBool(Nowturn);
+        output.WriteInt32(Nowturn);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -1500,8 +1500,8 @@ namespace Google.Protobuf.Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Nowturn != false) {
-        size += 1 + 1;
+      if (Nowturn != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Nowturn);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1515,7 +1515,7 @@ namespace Google.Protobuf.Protocol {
       if (other == null) {
         return;
       }
-      if (other.Nowturn != false) {
+      if (other.Nowturn != 0) {
         Nowturn = other.Nowturn;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1534,7 +1534,7 @@ namespace Google.Protobuf.Protocol {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Nowturn = input.ReadBool();
+            Nowturn = input.ReadInt32();
             break;
           }
         }
@@ -1553,7 +1553,7 @@ namespace Google.Protobuf.Protocol {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Nowturn = input.ReadBool();
+            Nowturn = input.ReadInt32();
             break;
           }
         }

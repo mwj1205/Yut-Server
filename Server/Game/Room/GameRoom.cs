@@ -4,6 +4,8 @@ using System;
 using System.Numerics;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Server.Game
 {
@@ -16,13 +18,15 @@ namespace Server.Game
 
         static Random random = new Random();
 
-        int[] _yutpos1 = new int[4] { 0, 0, 0, 0 };
-        int[] _yutpos2 = new int[4] { 0, 0, 0, 0 };
-
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
+        int _numOfPlayer = 2;
+        int _numofHorse = 4;
         Player[] _playerArray = new Player[2];
-        public bool _nowTurn = false; // 0이면 player1, 1이면 player2가 턴
-        List<YutResult> _yutResult = new List<YutResult>();
+
+
+        public int _nowTurn; // 0이면 player1, 1이면 player2가 턴
+        public int _yutChance;
+        public List<int> steps = new List<int>();
 
         private static int minigametime = 6000;
         int _timer = 0;
@@ -64,7 +68,7 @@ namespace Server.Game
                     _playerArray[1] = player;
             }
 
-            //HandleStartGame();
+            HandleStartGame();
             //SpawnGame2Player(gameObject);
         }
 
@@ -110,24 +114,23 @@ namespace Server.Game
             else _gamestate = GameState.Yutgame;
 
             // 처음 턴 결정
-            _nowTurn = (random.Next(2) == 0);
+            _nowTurn = random.Next(_numOfPlayer);
+            _yutChance = 1;
 
             S_StartGame startGamePacket = new S_StartGame();
             startGamePacket.Nowturn = _nowTurn;
 
             Broadcast(startGamePacket);
-
-            CatchHorse();
         }
 
         bool isPlayerTurn(Player player)
         {
             if (player == null) return false;
-            if (_nowTurn == true && player == _playerArray[0])
+            if (_nowTurn == 0 && player == _playerArray[0])
             {
                 return true; // player1의 턴일 때 true 반환
             }
-            else if (_nowTurn == false && player == _playerArray[1])
+            else if (_nowTurn == 1 && player == _playerArray[1])
             {
                 return true; // player2의 턴일 때 true 반환
             }
@@ -143,36 +146,20 @@ namespace Server.Game
             //if (isPlayerTurn(throwplayer) == false) return;
 
             S_ThrowYut throwyutPacket = new S_ThrowYut();
-            YutResult randomyut = GetYutResult();
+            YutResult randomyut = YutGameUtil.Instance.GetYutResult();
             throwyutPacket.Result = randomyut;
+            steps.Add(YutGameUtil.Instance.convertYutResult(randomyut));
 
             if(!(randomyut == YutResult.Yut) && !(randomyut == YutResult.Mo))
             {
-                _nowTurn = !_nowTurn;
+                _yutChance--;
             }
 
             Broadcast(throwyutPacket);
             Console.WriteLine(randomyut);
-        }
 
-        static YutResult GetYutResult()
-        {
-            int randomNumber = random.Next(1, 101); // 1부터 100 사이의 랜덤 숫자 생성
-
-            if (randomNumber <= 3) // 확률 3%
-                return YutResult.Nak;
-            else if (randomNumber <= 7) // 확률 4%
-                return YutResult.Backdo;
-            else if (randomNumber <= 25) // 확률 18%
-                return YutResult.Do;
-            else if (randomNumber <= 55) // 확률 30%
-                return YutResult.Gae;
-            else if (randomNumber <= 83) // 확률 28%
-                return YutResult.Geol;
-            else if (randomNumber <= 96) // 확률 13%
-                return YutResult.Yut;
-            else // 확률 4%
-                return YutResult.Mo;
+            if(_yutChance == 0)
+                CalcHorseDestination();
         }
 
         public void HandleYutMove(Player player, C_YutMove yutmovePacket)
@@ -182,24 +169,272 @@ namespace Server.Game
 
             //if (_gamestate != GameState.Yutgame) return;
 
+            // TODO
+            // 온 데이터가 맞는지 확인 (calc랑 비교할 예정)
+            YutHorse movehorse = _playerArray[_nowTurn]._horses[yutmovePacket.MovedYut];
+
+            YutMove(movehorse, steps[yutmovePacket.UseResult]);
+            MoveBindYut(movehorse, steps[yutmovePacket.UseResult]);
+            steps.RemoveAt(yutmovePacket.UseResult);
+            movehorse._destPosition.RemoveAt(yutmovePacket.UseResult);
+            HorseBind(movehorse);
+            CalcHorseDestination();
+
+            if (movehorse._doDefenceGame)
+            {
+                //_gamestate = GameState.Minione;
+            }
+            else if (movehorse._doHammerGame)
+            {
+                //_gamestate = GameState.Minitwo;
+                //StartMiniGame2();
+                HammerGameEnd(_playerArray[_nowTurn], movehorse);
+            }
+
+            if (movehorse._isbind)
+            {
+                for (int i = 0; i < movehorse.bindhorseList.Count; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        if (movehorse.bindhorseList[i] == _playerArray[_nowTurn]._horses[j])
+                        {
+                            Console.WriteLine("bind with : " + j);
+                            Console.WriteLine("bind pos : " + movehorse.bindhorseList[i]._nowPosition);
+                        }
+                    }
+                }
+            }
+
+            if (steps.Count <= 0 && _yutChance <= 0)
+            {
+                _nowTurn++;
+                if (_nowTurn >= _numOfPlayer)
+                    _nowTurn = 0;
+                _yutChance = 1;
+                Console.WriteLine("next turn");
+            }
+
             S_YutMove syutmovePacket = new S_YutMove();
             syutmovePacket.PlayerId = player.Id;
             syutmovePacket.UseResult = yutmovePacket.UseResult;
             syutmovePacket.MovedYut = yutmovePacket.MovedYut;
-            syutmovePacket.MovedPos = yutmovePacket.MovedPos;
+            syutmovePacket.MovedPos = movehorse._nowPosition;
             Broadcast(syutmovePacket);
 
-            Console.WriteLine("use yut : " + syutmovePacket.UseResult);
-            Console.WriteLine("move yut : " + syutmovePacket.MovedYut);
+            Console.WriteLine("moved yut : " + yutmovePacket.MovedYut);
             Console.WriteLine("yut dest : " + syutmovePacket.MovedPos);
+
+
         }
 
-        public void CatchHorse()
+        void clearYutDest()
         {
-            _gamestate = GameState.Minitwo;
+            for (int i = 0; i < _numofHorse; i++)
+            {
+                _playerArray[_nowTurn]._horses[i]._destPosition.Clear();
+            }
+        }
 
-            //GameTimer = new Timer(TimeSetCallback, null, _minigameTime, Timeout.Infinite);
+        void YutMove(YutHorse horse, int stepsLeft)
+        {
+            int tempStepleft = stepsLeft;
+            int calcPos = horse._nowPosition;
 
+            if (tempStepleft == -1)
+            {
+                calcPos = YutGameUtil.Instance.BackdoRoute(horse);
+            }
+            else
+            {
+                while (tempStepleft > 0)
+                {
+
+                    int NormalRoute = YutGameUtil.Instance.NormalRoute(horse._nowPosition, calcPos);
+                    if (NormalRoute != -1)
+                    {
+                        calcPos = NormalRoute;
+                        tempStepleft--;
+                    }
+                    else if (NormalRoute == -1)
+                    {
+                        calcPos++;
+                        tempStepleft--;
+                    }
+                    checkDoMiniGame(horse, calcPos, true);
+                }
+            }
+            horse._prevPosition = horse._nowPosition;
+            horse._nowPosition = calcPos;
+
+            checkDoMiniGame(horse, calcPos, false);
+        }
+
+        void MoveBindYut(YutHorse horse, int stepsLeft)
+        {
+            if (!horse._isbind) return;
+            foreach(YutHorse bindhorse in horse.bindhorseList)
+            {
+                YutMove(bindhorse, stepsLeft);
+            }
+
+        }
+
+        void CalcHorseDestination()
+        {
+            clearYutDest();
+
+            foreach (YutHorse horse in _playerArray[_nowTurn]._horses)
+            {
+                foreach (int stepsLeft in steps)
+                {
+                    int tempStepleft = stepsLeft;
+                    int calcPos = horse._nowPosition;
+
+                    if (tempStepleft == -1)
+                    {
+                        calcPos = YutGameUtil.Instance.BackdoRoute(horse);
+                    }
+                    else
+                    {
+                        while (tempStepleft > 0)
+                        {
+
+                            int NormalRoute = YutGameUtil.Instance.NormalRoute(horse._nowPosition, calcPos);
+                            if (NormalRoute != -1)
+                            {
+                                calcPos = NormalRoute;
+                                tempStepleft--;
+                            }
+                            else if (NormalRoute == -1)
+                            {
+                                calcPos++;
+                                tempStepleft--;
+                            }
+                        }
+                    }
+                    horse._destPosition.Add(calcPos);
+                }
+
+                Console.WriteLine("dest : ");
+                for (int i = 0; i < steps.Count; i++)
+                {
+                    Console.WriteLine("{0} : ", steps[i]);
+                    Console.WriteLine(horse._destPosition[i]);
+                }
+
+            }
+        }
+
+        void HorseBind(YutHorse horse)
+        {
+            if (horse._nowPosition == 0) return;
+            for (int i = 0; i < _numofHorse; i++) {
+                if (horse != _playerArray[_nowTurn]._horses[i])
+                {
+                    if (horse._nowPosition == _playerArray[_nowTurn]._horses[i]._nowPosition)
+                    {
+                        if (horse.bindhorseList.Contains(_playerArray[_nowTurn]._horses[i]))
+                        {
+                            Console.WriteLine("already exist");
+                            return; // 이미 리스트에 있는 경우, return
+                        }
+
+                        horse._isbind = true;
+                        horse.bindhorseList.Add(_playerArray[_nowTurn]._horses[i]);
+                        _playerArray[_nowTurn]._horses[i]._isbind = true;
+                        _playerArray[_nowTurn]._horses[i].bindhorseList.Add(horse);
+                    }
+                }
+            }
+        }
+
+        void checkDoMiniGame(YutHorse movinghorse, int calcposition, bool ismoving)
+        {
+            for(int i = 0; i < _numOfPlayer; i++)
+            {
+                if(i != _nowTurn)
+                {
+                    for(int j = 0; j < _numofHorse; j++)
+                    {
+                        if (calcposition == _playerArray[i]._horses[j]._nowPosition)
+                        {
+                            movinghorse.fighthorse = _playerArray[i]._horses[j];
+                            movinghorse._fightPosition = calcposition;
+
+                            if (ismoving)
+                            {
+                                movinghorse._doDefenceGame = true;
+                                movinghorse._fightPosition = calcposition;
+                                movinghorse.fighthorse = _playerArray[i]._horses[j];
+                            }
+                            else
+                            {
+                                movinghorse._doDefenceGame = false;
+                                movinghorse._doHammerGame = true;
+                                movinghorse._fightPosition = calcposition;
+                                movinghorse.fighthorse = _playerArray[i]._horses[j];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        void HammerGameEnd(Player winplayer, YutHorse horse)
+        {
+            Console.WriteLine("Yut Catched");
+            if (winplayer == _playerArray[_nowTurn])
+            {
+                int pluschance = 1;
+                if (horse.fighthorse == null)
+                {
+                    Console.WriteLine("there is no fight horse");
+                    return;
+                }
+                if (horse.fighthorse._isbind)
+                {
+                    pluschance = horse.fighthorse.bindhorseList.Count;
+                    foreach (YutHorse losehorse in horse.fighthorse.bindhorseList)
+                    {
+                        YutGotoStart(losehorse);
+                    }
+                }
+                YutGotoStart(horse.fighthorse);
+                _yutChance += pluschance;
+            }
+            else
+            {
+                if (horse._isbind)
+                {
+                    foreach (YutHorse losehorse in horse.bindhorseList)
+                    {
+                        YutGotoStart(losehorse);
+                    }
+                }
+                YutGotoStart(horse);
+            }
+            horse._doHammerGame = false;
+        }
+
+        void YutGotoStart(YutHorse horse)
+        {
+            horse._nowPosition = 0;
+            horse._destPosition.Clear();
+            horse._prevPosition = 0;
+            horse._isgoal = false;
+            horse._isbind = false;
+
+            horse._doHammerGame = false;
+            horse._doDefenceGame = false;
+            horse._fightPosition = 0;
+            horse.fighthorse = null;
+
+            horse.bindhorseList.Clear();
+        }
+        
+        public void StartMiniGame2()
+        {
             for (int i = 0; i < _playerArray.Length; i++)
             {
                 SpawnGame2Player(_playerArray[i]);
@@ -245,7 +480,7 @@ namespace Server.Game
         public void InitPlayerInfo(Player MyPlayer)
         {
             MyPlayer.Info.PosInfo.PosX = 1;
-            MyPlayer.Info.PosInfo.PosY = 50;
+            MyPlayer.Info.PosInfo.PosY = 51;
             MyPlayer.Info.PosInfo.PosZ = 1;
             MyPlayer.Info.RotInfo.RotX = 0;
             MyPlayer.Info.RotInfo.RotY = 0;

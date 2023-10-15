@@ -53,8 +53,8 @@ namespace Server
 				MyPlayer.Session = this;
 			}
 
-            GameRoom room = RoomManager.Instance.Find(1);
-            room.Push(room.EnterGame, MyPlayer);
+            //GameRoom room = RoomManager.Instance.Find(1);
+            //room.Push(room.EnterGame, MyPlayer);
         }
 
         public override void OnRecvPacket(ArraySegment<byte> buffer)
@@ -67,8 +67,11 @@ namespace Server
 			if (MyPlayer.Room != null)
 			{
 				GameRoom room = RoomManager.Instance.Find(MyPlayer.Room.RoomId);
-				room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
-				RoomManager.Instance.Remove(room.RoomId);
+				if (room != null)
+				{
+					room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
+					RoomManager.Instance.Remove(room.RoomId);
+				}
 			}
 			
             SessionManager.Instance.Remove(this);
