@@ -28,6 +28,8 @@ namespace Server.Game
         public int _yutChance;
         public List<int> steps = new List<int>();
 
+        public int _wingamePlayer;
+
         private static int minigametime = 6000;
         int _timer = 0;
         public bool _playerdisconnect = false;
@@ -58,14 +60,19 @@ namespace Server.Game
             if (type == GameObjectType.Player)
             {
                 Player player = gameObject as Player;
-                _players.Add(gameObject.Id, player);
-                player.Room = this;
 
-                // 처음 들어온 두 사람이 플레이어
-                if (_playerArray[0] == null )
+                if (_playerArray[0] == null)
                     _playerArray[0] = player;
                 else if (_playerArray[1] == null)
                     _playerArray[1] = player;
+                else
+                {
+                    Console.WriteLine("room is full");
+                    return;
+                }
+
+                _players.Add(gameObject.Id, player);
+                player.Room = this;
             }
 
             HandleStartGame();
@@ -173,6 +180,40 @@ namespace Server.Game
             // 온 데이터가 맞는지 확인 (calc랑 비교할 예정)
             YutHorse movehorse = _playerArray[_nowTurn]._horses[yutmovePacket.MovedYut];
 
+            if(movehorse._nowPosition == 0 && steps[yutmovePacket.UseResult] == -1)
+            {
+                Console.WriteLine("backdo : no on field");
+                return;
+            }
+
+
+            if (steps[yutmovePacket.UseResult] == -1)
+            {
+                bool isallstart = true;
+                for (int i = 0; i < _numofHorse; i++)
+                {
+                    if (_playerArray[_nowTurn]._horses[i]._nowPosition != 0)
+                    {
+                        isallstart = false;
+                        break;
+                    }
+                }
+
+                if (isallstart)
+                {
+                    S_YutMove yutpacket = new S_YutMove();
+                    yutpacket.PlayerId = player.Id;
+                    yutpacket.UseResult = yutmovePacket.UseResult;
+                    yutpacket.MovedYut = yutmovePacket.MovedYut;
+                    yutpacket.MovedPos = movehorse._nowPosition;
+                    Broadcast(yutpacket);
+
+                    Console.WriteLine("can't move backdo");
+                    nextturn();
+                    return;
+                }
+            }
+
             YutMove(movehorse, steps[yutmovePacket.UseResult]);
             MoveBindYut(movehorse, steps[yutmovePacket.UseResult]);
             steps.RemoveAt(yutmovePacket.UseResult);
@@ -187,6 +228,7 @@ namespace Server.Game
             else if (movehorse._doHammerGame)
             {
                 //_gamestate = GameState.Minitwo;
+                Console.WriteLine("lets hammer");
                 //StartMiniGame2();
                 HammerGameEnd(_playerArray[_nowTurn], movehorse);
             }
@@ -208,11 +250,7 @@ namespace Server.Game
 
             if (steps.Count <= 0 && _yutChance <= 0)
             {
-                _nowTurn++;
-                if (_nowTurn >= _numOfPlayer)
-                    _nowTurn = 0;
-                _yutChance = 1;
-                Console.WriteLine("next turn");
+                nextturn();
             }
 
             S_YutMove syutmovePacket = new S_YutMove();
@@ -226,6 +264,15 @@ namespace Server.Game
             Console.WriteLine("yut dest : " + syutmovePacket.MovedPos);
 
 
+        }
+
+        void nextturn()
+        {
+            _nowTurn++;
+            if (_nowTurn >= _numOfPlayer)
+                _nowTurn = 0;
+            _yutChance = 1;
+            Console.WriteLine("next turn");
         }
 
         void clearYutDest()
@@ -266,7 +313,11 @@ namespace Server.Game
             }
             horse._prevPosition = horse._nowPosition;
             horse._nowPosition = calcPos;
-
+            if(horse._nowPosition >= 31)
+            {
+                horse._nowPosition = 31;
+                horse._isgoal = true;
+            }
             checkDoMiniGame(horse, calcPos, false);
         }
 
@@ -351,12 +402,13 @@ namespace Server.Game
 
         void checkDoMiniGame(YutHorse movinghorse, int calcposition, bool ismoving)
         {
-            for(int i = 0; i < _numOfPlayer; i++)
+            for (int i = 0; i < _numOfPlayer; i++)
             {
-                if(i != _nowTurn)
+                if (i != _nowTurn)
                 {
-                    for(int j = 0; j < _numofHorse; j++)
+                    for (int j = 0; j < _numofHorse; j++)
                     {
+                        if (_playerArray[i]._horses[j]._isgoal) continue; // Skip to the next j if _isgoal is true
                         if (calcposition == _playerArray[i]._horses[j]._nowPosition)
                         {
                             movinghorse.fighthorse = _playerArray[i]._horses[j];
@@ -394,7 +446,7 @@ namespace Server.Game
                 }
                 if (horse.fighthorse._isbind)
                 {
-                    pluschance = horse.fighthorse.bindhorseList.Count;
+                    pluschance = horse.fighthorse.bindhorseList.Count + 1;
                     foreach (YutHorse losehorse in horse.fighthorse.bindhorseList)
                     {
                         YutGotoStart(losehorse);
@@ -611,6 +663,19 @@ namespace Server.Game
         public void PlayerDie(Player player, bool istimeset)
         {
             if (player == null) return;
+
+            for(int i = 0; i < _numOfPlayer; i++)
+            {
+                if (_playerArray[i] == player)
+                {
+                    _wingamePlayer = i + 1;
+                    if(_wingamePlayer <= 2)
+                    {
+                        _wingamePlayer = 0;
+                    }
+                }
+            }
+
             S_Die diePacket = new S_Die();
             diePacket.ObjectId = player.Id;
             diePacket.Timeset = istimeset;
@@ -656,6 +721,7 @@ namespace Server.Game
                 Mini2TimeSet();
             }
         }
+
 
         public Player FindPlayer(Func<GameObject, bool> condition)
         {

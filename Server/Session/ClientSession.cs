@@ -38,7 +38,7 @@ namespace Server
 			{
 				MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
 				MyPlayer.Info.PosInfo.PosX = 0 ;
-				MyPlayer.Info.PosInfo.PosY = 50 ;
+				MyPlayer.Info.PosInfo.PosY = 51 ;
 				MyPlayer.Info.PosInfo.PosZ = 0 ;
 				MyPlayer.Info.RotInfo.RotX = 0 ;
 				MyPlayer.Info.RotInfo.RotY = 0 ;

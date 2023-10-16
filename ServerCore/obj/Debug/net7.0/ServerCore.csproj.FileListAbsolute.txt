@@ -22,3 +22,15 @@ C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.
 C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\refint\ServerCore.dll
 C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.pdb
 C:\Users\mwj12\source\repos\FPS_Yut_Server\Yut-Server\ServerCore\obj\Debug\net7.0\ref\ServerCore.dll
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\bin\Debug\net7.0\ServerCore.deps.json
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\bin\Debug\net7.0\ServerCore.dll
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\bin\Debug\net7.0\ServerCore.pdb
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.csproj.AssemblyReference.cache
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.AssemblyInfoInputs.cache
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.AssemblyInfo.cs
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.dll
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\refint\ServerCore.dll
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ServerCore.pdb
+C:\Users\msi\Documents\GitHub\Yut-Server\ServerCore\obj\Debug\net7.0\ref\ServerCore.dll
