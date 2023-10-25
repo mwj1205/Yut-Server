@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\msi\\Documents\\GitHub\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj": {}
+    "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj": {}
   },
   "projects": {
-    "C:\\Users\\msi\\Documents\\GitHub\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj": {
+    "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\msi\\Documents\\GitHub\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj",
+        "projectUniqueName": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj",
         "projectName": "PacketGenerator",
-        "projectPath": "C:\\Users\\msi\\Documents\\GitHub\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj",
-        "packagesPath": "C:\\Users\\msi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\msi\\Documents\\GitHub\\Yut-Server\\PacketGenerator\\obj\\",
+        "projectPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\PacketGenerator.csproj",
+        "packagesPath": "C:\\Users\\mwj12\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\mwj12\\source\\repos\\FPS_Yut_Server\\Yut-Server\\PacketGenerator\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\msi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mwj12\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -55,7 +55,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
         }
       }
     }

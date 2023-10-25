@@ -150,4 +150,32 @@ class PacketHandler
         room.Push(room.HandlePlayerAttack, player);
         Console.WriteLine("Attacked");
     }
+
+    public static void C_GameReadyHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+        room.Push(room.MiniGameStart);
+    }
+
+    public static void C_GameEndReadyHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+        room.Push(room.MiniGameEnd);
+    }
 }

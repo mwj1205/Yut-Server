@@ -25,13 +25,17 @@ namespace Server.Game
 
 
         public int _nowTurn; // 0이면 player1, 1이면 player2가 턴
+        int _turn;
         public int _yutChance;
         public List<int> steps = new List<int>();
-
+        YutHorse? movehorse = null;
         public int _wingamePlayer;
 
         private static int minigametime = 6000;
         int _timer = 0;
+
+        private int _minigameReady = 0;
+        private int _minigameendReady = 0;
         public bool _playerdisconnect = false;
 
         public void Init()
@@ -39,6 +43,7 @@ namespace Server.Game
             _gamestate = GameState.Waiting;
             if (RoomName == null)
                 RoomName = "default room name";
+            _turn = 1;
             Console.WriteLine("Room Id : " + RoomId);
             Console.WriteLine(RoomName);
         }
@@ -127,7 +132,14 @@ namespace Server.Game
             S_StartGame startGamePacket = new S_StartGame();
             startGamePacket.Nowturn = _nowTurn;
 
-            Broadcast(startGamePacket);
+            foreach (Player p in _players.Values)
+            {
+                p.Session.Send(startGamePacket);
+                _nowTurn += 1;
+                if (_nowTurn >= _numOfPlayer)
+                    _nowTurn = 0;
+            }
+
         }
 
         bool isPlayerTurn(Player player)
@@ -178,14 +190,7 @@ namespace Server.Game
 
             // TODO
             // 온 데이터가 맞는지 확인 (calc랑 비교할 예정)
-            YutHorse movehorse = _playerArray[_nowTurn]._horses[yutmovePacket.MovedYut];
-
-            if(movehorse._nowPosition == 0 && steps[yutmovePacket.UseResult] == -1)
-            {
-                Console.WriteLine("backdo : no on field");
-                return;
-            }
-
+            movehorse = _playerArray[_nowTurn]._horses[yutmovePacket.MovedYut];
 
             if (steps[yutmovePacket.UseResult] == -1)
             {
@@ -214,24 +219,18 @@ namespace Server.Game
                 }
             }
 
+            if (movehorse._nowPosition == 0 && steps[yutmovePacket.UseResult] == -1)
+            {
+                Console.WriteLine("backdo : no on field");
+                return;
+            }
+
             YutMove(movehorse, steps[yutmovePacket.UseResult]);
             MoveBindYut(movehorse, steps[yutmovePacket.UseResult]);
             steps.RemoveAt(yutmovePacket.UseResult);
             movehorse._destPosition.RemoveAt(yutmovePacket.UseResult);
             HorseBind(movehorse);
             CalcHorseDestination();
-
-            if (movehorse._doDefenceGame)
-            {
-                //_gamestate = GameState.Minione;
-            }
-            else if (movehorse._doHammerGame)
-            {
-                //_gamestate = GameState.Minitwo;
-                Console.WriteLine("lets hammer");
-                //StartMiniGame2();
-                HammerGameEnd(_playerArray[_nowTurn], movehorse);
-            }
 
             if (movehorse._isbind)
             {
@@ -248,11 +247,6 @@ namespace Server.Game
                 }
             }
 
-            if (steps.Count <= 0 && _yutChance <= 0)
-            {
-                nextturn();
-            }
-
             S_YutMove syutmovePacket = new S_YutMove();
             syutmovePacket.PlayerId = player.Id;
             syutmovePacket.UseResult = yutmovePacket.UseResult;
@@ -263,12 +257,29 @@ namespace Server.Game
             Console.WriteLine("moved yut : " + yutmovePacket.MovedYut);
             Console.WriteLine("yut dest : " + syutmovePacket.MovedPos);
 
+            if (movehorse._doDefenceGame)
+            {
+                //_gamestate = GameState.Minione;
+                Console.WriteLine("lets Defence");
+            }
+            else if (movehorse._doHammerGame)
+            {
+                _gamestate = GameState.Minitwo;
+                Console.WriteLine("lets hammer");
+            }
+
+            if (steps.Count <= 0 && _yutChance <= 0 && !(_gamestate == GameState.Minione || _gamestate == GameState.Minitwo))
+            {
+                nextturn();
+            }
 
         }
 
         void nextturn()
         {
+            steps.Clear();
             _nowTurn++;
+            _turn++;
             if (_nowTurn >= _numOfPlayer)
                 _nowTurn = 0;
             _yutChance = 1;
@@ -433,40 +444,41 @@ namespace Server.Game
             }
         }
 
-        void HammerGameEnd(Player winplayer, YutHorse horse)
+        #region HammerGame
+        void HammerGameEnd(Player winplayer)
         {
             Console.WriteLine("Yut Catched");
             if (winplayer == _playerArray[_nowTurn])
             {
                 int pluschance = 1;
-                if (horse.fighthorse == null)
+                if (movehorse.fighthorse == null)
                 {
                     Console.WriteLine("there is no fight horse");
                     return;
                 }
-                if (horse.fighthorse._isbind)
+                if (movehorse.fighthorse._isbind)
                 {
-                    pluschance = horse.fighthorse.bindhorseList.Count + 1;
-                    foreach (YutHorse losehorse in horse.fighthorse.bindhorseList)
+                    pluschance = movehorse.fighthorse.bindhorseList.Count + 1;
+                    foreach (YutHorse losehorse in movehorse.fighthorse.bindhorseList)
                     {
                         YutGotoStart(losehorse);
                     }
                 }
-                YutGotoStart(horse.fighthorse);
+                YutGotoStart(movehorse.fighthorse);
                 _yutChance += pluschance;
             }
             else
             {
-                if (horse._isbind)
+                if (movehorse._isbind)
                 {
-                    foreach (YutHorse losehorse in horse.bindhorseList)
+                    foreach (YutHorse losehorse in movehorse.bindhorseList)
                     {
                         YutGotoStart(losehorse);
                     }
                 }
-                YutGotoStart(horse);
+                YutGotoStart(movehorse);
             }
-            horse._doHammerGame = false;
+            movehorse._doHammerGame = false;
         }
 
         void YutGotoStart(YutHorse horse)
@@ -484,14 +496,14 @@ namespace Server.Game
 
             horse.bindhorseList.Clear();
         }
-        
+
         public void StartMiniGame2()
         {
             for (int i = 0; i < _playerArray.Length; i++)
             {
                 SpawnGame2Player(_playerArray[i]);
             }
-
+            _timer = 0;
             S_HorseCatch horseCatchPacket = new S_HorseCatch();
             horseCatchPacket.Playtime = minigametime;
             Broadcast(horseCatchPacket);
@@ -507,14 +519,14 @@ namespace Server.Game
                 enterPacket.Player = player.Info;
                 player.Session.Send(enterPacket);
 
-                //S_Spawn spawnPacket = new S_Spawn();
-                //foreach (Player p in _players.Values)
-                //{
-                //    if (player != p)
-                //        spawnPacket.Objects.Add(p.Info);
-                //}
+                S_Spawn spawnPacket = new S_Spawn();
+                foreach (Player p in _players.Values)
+                {
+                    if (player != p)
+                        spawnPacket.Objects.Add(p.Info);
+                }
 
-                //player.Session.Send(spawnPacket);
+                player.Session.Send(spawnPacket);
             }
 
             // 타인한테 정보 전송
@@ -539,12 +551,16 @@ namespace Server.Game
             MyPlayer.Info.RotInfo.RotZ = 0;
             MyPlayer.Info.RotInfo.RotW = 0;
             MyPlayer.Info.StatInfo.Hp = 5;
+            MyPlayer.Info.StatInfo.MaxHp = 5;
+            MyPlayer.Info.StatInfo.Speed = 10;
+            MyPlayer.Info.StatInfo.RunSpeed = 20;
+            MyPlayer.Info.StatInfo.JumpForce = 10;
         }
 
         public void HandleMove(Player player, C_Move movePacket)
         {
-            if (player == null)
-                return;
+            //if (_gamestate != GameState.Minitwo) return;
+            if (player == null) return;
 
             // 서버에서 좌표 이동
             ObjectInfo info = player.Info;
@@ -566,8 +582,8 @@ namespace Server.Game
 
         public void HandleRotation(Player player, C_Rotation rotationPacket)
         {
-            if (player == null)
-                return;
+            //if (_gamestate != GameState.Minitwo) return;
+            if (player == null) return;
 
             // 일단 서버에서 좌표 이동
             ObjectInfo info = player.Info;
@@ -583,8 +599,8 @@ namespace Server.Game
 
         public void HandlePlayerAttack(Player player)
         {
-            if (player == null)
-                return;
+            //if (_gamestate != GameState.Minitwo) return;
+            if (player == null) return;
 
             S_DoAttack atkPacket = new S_DoAttack();
             atkPacket.ObjectId = player.Info.ObjectId;
@@ -635,8 +651,8 @@ namespace Server.Game
 
         private void PlayerAttacked(Player player, Vector3 attackedDirection)
         {
-            if (player == null)
-                return;
+            if (player == null) return;
+            //if (_gamestate != GameState.Minitwo) return;
 
             S_PlayerAttacked attackedPacket = new S_PlayerAttacked();
             attackedPacket.ObjectId = player.Id;
@@ -663,26 +679,30 @@ namespace Server.Game
         public void PlayerDie(Player player, bool istimeset)
         {
             if (player == null) return;
+            //if (_gamestate != GameState.Minitwo) return;
 
-            for(int i = 0; i < _numOfPlayer; i++)
+            int winplayer = -1;
+
+            if (_playerArray[_nowTurn] != player)
             {
-                if (_playerArray[i] == player)
+                winplayer = _nowTurn;
+            }
+            else
+            {
+                winplayer = _nowTurn + 1;
+                if (winplayer <= _numOfPlayer) 
                 {
-                    _wingamePlayer = i + 1;
-                    if(_wingamePlayer <= 2)
-                    {
-                        _wingamePlayer = 0;
-                    }
+                    winplayer = 0;
                 }
             }
 
-            S_Die diePacket = new S_Die();
-            diePacket.ObjectId = player.Id;
-            diePacket.Timeset = istimeset;
+            HammerGameEnd(_playerArray[winplayer]);
 
+            S_Die diePacket = new S_Die();
+            diePacket.ObjectId = winplayer;
+            diePacket.Timeset = istimeset;
             Broadcast(diePacket);
 
-            _gamestate = GameState.Yutgame;
             _timer = 0;
         }
 
@@ -722,6 +742,53 @@ namespace Server.Game
             }
         }
 
+        private void DespawnMini2()
+        {
+            S_Despawn despawnPacket = new S_Despawn();
+            foreach (Player p in _playerArray)
+            {
+                despawnPacket.ObjectIds.Add(p.Id);
+            }
+            Broadcast(despawnPacket);
+        }
+
+        #endregion HammerGame
+
+        public void MiniGameStart()
+        {
+            _minigameReady += 1;
+            if (_minigameReady < _numOfPlayer) return;
+
+            if (_gamestate == GameState.Minione)
+            {
+
+            }
+
+            if(_gamestate == GameState.Minitwo)
+            {
+                StartMiniGame2();
+            }
+            _minigameReady = 0;
+        }
+
+        public void MiniGameEnd()
+        {
+            _minigameendReady += 1;
+            if (_minigameendReady < _numOfPlayer) return;
+
+            if (_gamestate == GameState.Minione)
+            {
+
+            }
+
+            if (_gamestate == GameState.Minitwo)
+            {
+                DespawnMini2();
+                _gamestate = GameState.Yutgame;
+            }
+
+            _minigameendReady = 0;
+        }
 
         public Player FindPlayer(Func<GameObject, bool> condition)
         {
