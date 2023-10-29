@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using static System.Formats.Asn1.AsnWriter;
+using static Server.Game.YutGameUtil;
 
 namespace Server.Game
 {
@@ -23,13 +23,16 @@ namespace Server.Game
         int _numofHorse = 4;
         Player[] _playerArray = new Player[2];
 
-
+        #region YutGame var
+        
         public int _nowTurn; // 0이면 player1, 1이면 player2가 턴
         int _turn;
         public int _yutChance;
         public List<int> steps = new List<int>();
         YutHorse? movehorse = null;
         public int _wingamePlayer;
+        
+        #endregion YutGame var
 
         private static int minigametime = 6000;
         int _timer = 0;
@@ -754,6 +757,76 @@ namespace Server.Game
 
         #endregion HammerGame
 
+        #region DefenceGame
+        List<Vector3Int> previousPositions = new List<Vector3Int>();
+        Vector3 playerPosition = new Vector3();
+        public void DefenceGameInit()
+        {
+            CreateObstacle();
+            playerPosition = new Vector3(-9.807433f, 6.361557f, -28.29243f);
+        }
+
+        public void CreateObstacle()
+        {
+            for(int i = 0; i < 3; i++)
+            {
+                Vector3Int newPosition;
+                do
+                {
+                    // x축 랜덤
+                    int posX = random.Next(0, 4);
+
+                    // z축 랜덤
+                    int posZ = random.Next(0, 4);
+                    newPosition = new Vector3Int(posX, 0, posZ);
+                } while (IsPositionInvalid(newPosition, previousPositions));
+
+                previousPositions.Add(newPosition); // 새 위치를 리스트에 추가
+            }
+        }
+
+        bool IsPositionInvalid(Vector3Int newPosition, List<Vector3Int> previousPositions)
+        {
+            if(previousPositions.Count == 0) return false;
+
+            foreach (Vector3Int prevPosition in previousPositions)
+            {
+                if (IsAdjacentDiagonally(newPosition, prevPosition) ||
+                    newPosition.x == prevPosition.x ||
+                    newPosition.z == prevPosition.z)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool IsAdjacentDiagonally(Vector3Int pos1, Vector3Int pos2)
+        {
+            return (pos1.x - pos2.x == 1 && pos1.z - pos2.z == 1) ||   // top-right
+                   (pos1.x - pos2.x == -1 && pos1.z - pos2.z == 1) ||  // top-left
+                   (pos1.x - pos2.x == 1 && pos1.z - pos2.z == -1) ||  // bottom-right
+                   (pos1.x - pos2.x == -1 && pos1.z - pos2.z == -1);   // bottom-left
+        }
+
+        public void HandleSelectWall(int selectwall)
+        {
+            //if(_gamestate != GameState.Minione) return;
+            if(selectwall == 0) return;
+
+            S_SelectWall wallPacket = new S_SelectWall();
+            wallPacket.Selectwall = selectwall;
+
+            Broadcast(wallPacket);
+        }
+
+        public void HandleAttackWall()
+        {
+            S_AttackWall attackPacket = new S_AttackWall();
+            Broadcast(attackPacket);
+        }
+
+        #endregion DefenceGame
         public void MiniGameStart()
         {
             _minigameReady += 1;

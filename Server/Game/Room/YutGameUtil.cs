@@ -21,6 +21,20 @@ namespace Server.Game
         public const int CENTER_STRAIGHT = 24;
         public const int CENTER_FORK = 28;
 
+        public struct Vector3Int
+        {
+            public int x;
+            public int y;
+            public int z;
+
+            public Vector3Int(int x, int y, int z)
+            {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+        }
+
         static Random random = new Random();
 
         public YutResult GetYutResult()

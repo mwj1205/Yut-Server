@@ -151,6 +151,39 @@ class PacketHandler
         Console.WriteLine("Attacked");
     }
 
+    public static void C_SelectWallHandler(PacketSession session, IMessage packet)
+    {
+        C_SelectWall wallPacket = packet as C_SelectWall;
+        ClientSession clientSession = session as ClientSession;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleSelectWall, wallPacket.Selectwall);
+
+    }
+
+    public static void C_AttackWallHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleAttackWall);
+
+    }
+
     public static void C_GameReadyHandler(PacketSession session, IMessage packet)
     {
         ClientSession clientSession = session as ClientSession;
@@ -162,6 +195,7 @@ class PacketHandler
         GameRoom room = player.Room;
         if (room == null)
             return;
+
         room.Push(room.MiniGameStart);
     }
 

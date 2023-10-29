@@ -41,6 +41,10 @@ class PacketManager
 		_handler.Add((ushort)MsgId.CRotation, PacketHandler.C_RotationHandler);		
 		_onRecv.Add((ushort)MsgId.CDoAttack, MakePacket<C_DoAttack>);
 		_handler.Add((ushort)MsgId.CDoAttack, PacketHandler.C_DoAttackHandler);		
+		_onRecv.Add((ushort)MsgId.CSelectWall, MakePacket<C_SelectWall>);
+		_handler.Add((ushort)MsgId.CSelectWall, PacketHandler.C_SelectWallHandler);		
+		_onRecv.Add((ushort)MsgId.CAttackWall, MakePacket<C_AttackWall>);
+		_handler.Add((ushort)MsgId.CAttackWall, PacketHandler.C_AttackWallHandler);		
 		_onRecv.Add((ushort)MsgId.CGameReady, MakePacket<C_GameReady>);
 		_handler.Add((ushort)MsgId.CGameReady, PacketHandler.C_GameReadyHandler);		
 		_onRecv.Add((ushort)MsgId.CGameEndReady, MakePacket<C_GameEndReady>);
