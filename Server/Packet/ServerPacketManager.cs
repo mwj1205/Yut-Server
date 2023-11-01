@@ -41,10 +41,18 @@ class PacketManager
 		_handler.Add((ushort)MsgId.CRotation, PacketHandler.C_RotationHandler);		
 		_onRecv.Add((ushort)MsgId.CDoAttack, MakePacket<C_DoAttack>);
 		_handler.Add((ushort)MsgId.CDoAttack, PacketHandler.C_DoAttackHandler);		
+		_onRecv.Add((ushort)MsgId.CUpdateRound, MakePacket<C_UpdateRound>);
+		_handler.Add((ushort)MsgId.CUpdateRound, PacketHandler.C_UpdateRoundHandler);		
 		_onRecv.Add((ushort)MsgId.CSelectWall, MakePacket<C_SelectWall>);
 		_handler.Add((ushort)MsgId.CSelectWall, PacketHandler.C_SelectWallHandler);		
 		_onRecv.Add((ushort)MsgId.CAttackWall, MakePacket<C_AttackWall>);
 		_handler.Add((ushort)MsgId.CAttackWall, PacketHandler.C_AttackWallHandler);		
+		_onRecv.Add((ushort)MsgId.CDefMove, MakePacket<C_DefMove>);
+		_handler.Add((ushort)MsgId.CDefMove, PacketHandler.C_DefMoveHandler);		
+		_onRecv.Add((ushort)MsgId.CPlayerCollision, MakePacket<C_PlayerCollision>);
+		_handler.Add((ushort)MsgId.CPlayerCollision, PacketHandler.C_PlayerCollisionHandler);		
+		_onRecv.Add((ushort)MsgId.CDefgameWin, MakePacket<C_DefgameWin>);
+		_handler.Add((ushort)MsgId.CDefgameWin, PacketHandler.C_DefgameWinHandler);		
 		_onRecv.Add((ushort)MsgId.CGameReady, MakePacket<C_GameReady>);
 		_handler.Add((ushort)MsgId.CGameReady, PacketHandler.C_GameReadyHandler);		
 		_onRecv.Add((ushort)MsgId.CGameEndReady, MakePacket<C_GameEndReady>);

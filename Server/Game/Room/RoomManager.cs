@@ -60,6 +60,7 @@ namespace Server.Game
                 foreach (var kvp in _rooms)
                 {
                     GameRoom gameroom = kvp.Value;
+                    if (gameroom._playerArray[0] != null && gameroom._playerArray[1] != null) continue;
                     RoomInfo roominfo = new RoomInfo();
                     roominfo.RoomId = kvp.Key;
                     roominfo.Roomname = gameroom.RoomName;

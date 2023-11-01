@@ -151,6 +151,20 @@ class PacketHandler
         Console.WriteLine("Attacked");
     }
 
+    public static void C_UpdateRoundHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.UpdateRound);
+    }
+
     public static void C_SelectWallHandler(PacketSession session, IMessage packet)
     {
         C_SelectWall wallPacket = packet as C_SelectWall;
@@ -182,6 +196,53 @@ class PacketHandler
 
         room.Push(room.HandleAttackWall);
 
+    }
+
+    public static void C_DefMoveHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+        C_DefMove movePacket = packet as C_DefMove;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleDefMove, movePacket.Posinfo.PosX, movePacket.Posinfo.PosZ);
+    }
+
+    public static void C_PlayerCollisionHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandlePlayerCollision);
+    }
+
+    public static void C_DefgameWinHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+        C_DefgameWin winPacket = packet as C_DefgameWin;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.DefgameEnd, winPacket.Winplayer);
     }
 
     public static void C_GameReadyHandler(PacketSession session, IMessage packet)

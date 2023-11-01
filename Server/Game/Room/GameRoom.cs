@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using static Server.Game.YutGameUtil;
+using System.ComponentModel;
 
 namespace Server.Game
 {
@@ -21,7 +22,7 @@ namespace Server.Game
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
         int _numOfPlayer = 2;
         int _numofHorse = 4;
-        Player[] _playerArray = new Player[2];
+        public Player[] _playerArray = new Player[2];
 
         #region YutGame var
         
@@ -30,6 +31,7 @@ namespace Server.Game
         public int _yutChance;
         public List<int> steps = new List<int>();
         YutHorse? movehorse = null;
+        int _leftsteps;
         public int _wingamePlayer;
         
         #endregion YutGame var
@@ -180,8 +182,8 @@ namespace Server.Game
             Broadcast(throwyutPacket);
             Console.WriteLine(randomyut);
 
-            if(_yutChance == 0)
-                CalcHorseDestination();
+            //if(_yutChance == 0)
+                //CalcHorseDestination();
         }
 
         public void HandleYutMove(Player player, C_YutMove yutmovePacket)
@@ -194,7 +196,7 @@ namespace Server.Game
             // TODO
             // 온 데이터가 맞는지 확인 (calc랑 비교할 예정)
             movehorse = _playerArray[_nowTurn]._horses[yutmovePacket.MovedYut];
-
+            //if(movehorse._isgoal) { return; }
             if (steps[yutmovePacket.UseResult] == -1)
             {
                 bool isallstart = true;
@@ -217,6 +219,7 @@ namespace Server.Game
                     Broadcast(yutpacket);
 
                     Console.WriteLine("can't move backdo");
+                    steps.Remove(yutmovePacket.UseResult);
                     nextturn();
                     return;
                 }
@@ -231,24 +234,9 @@ namespace Server.Game
             YutMove(movehorse, steps[yutmovePacket.UseResult]);
             MoveBindYut(movehorse, steps[yutmovePacket.UseResult]);
             steps.RemoveAt(yutmovePacket.UseResult);
-            movehorse._destPosition.RemoveAt(yutmovePacket.UseResult);
+            //movehorse._destPosition.RemoveAt(yutmovePacket.UseResult);
             HorseBind(movehorse);
-            CalcHorseDestination();
-
-            if (movehorse._isbind)
-            {
-                for (int i = 0; i < movehorse.bindhorseList.Count; i++)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        if (movehorse.bindhorseList[i] == _playerArray[_nowTurn]._horses[j])
-                        {
-                            Console.WriteLine("bind with : " + j);
-                            Console.WriteLine("bind pos : " + movehorse.bindhorseList[i]._nowPosition);
-                        }
-                    }
-                }
-            }
+            //CalcHorseDestination();
 
             S_YutMove syutmovePacket = new S_YutMove();
             syutmovePacket.PlayerId = player.Id;
@@ -259,27 +247,19 @@ namespace Server.Game
 
             Console.WriteLine("moved yut : " + yutmovePacket.MovedYut);
             Console.WriteLine("yut dest : " + syutmovePacket.MovedPos);
-
-            if (movehorse._doDefenceGame)
-            {
-                //_gamestate = GameState.Minione;
-                Console.WriteLine("lets Defence");
-            }
-            else if (movehorse._doHammerGame)
-            {
-                _gamestate = GameState.Minitwo;
-                Console.WriteLine("lets hammer");
-            }
-
+            Console.WriteLine("yut pos : {0} {1} {2} {3}", _playerArray[0]._horses[0]._nowPosition, _playerArray[0]._horses[1]._nowPosition, _playerArray[0]._horses[2]._nowPosition, _playerArray[0]._horses[3]._nowPosition);
+            Console.WriteLine("yut pos : {0} {1} {2} {3}", _playerArray[1]._horses[0]._nowPosition, _playerArray[1]._horses[1]._nowPosition, _playerArray[1]._horses[2]._nowPosition, _playerArray[1]._horses[3]._nowPosition);
             if (steps.Count <= 0 && _yutChance <= 0 && !(_gamestate == GameState.Minione || _gamestate == GameState.Minitwo))
             {
                 nextturn();
             }
 
+
         }
 
         void nextturn()
         {
+            if (_yutChance > 0 || steps.Count != 0) return;
             steps.Clear();
             _nowTurn++;
             _turn++;
@@ -301,17 +281,21 @@ namespace Server.Game
         {
             int tempStepleft = stepsLeft;
             int calcPos = horse._nowPosition;
+            int startposition = horse._nowPosition;
 
             if (tempStepleft == -1)
             {
                 calcPos = YutGameUtil.Instance.BackdoRoute(horse);
+                horse._prevPosition = horse._nowPosition;
+                horse._nowPosition = calcPos;
             }
             else
             {
                 while (tempStepleft > 0)
                 {
+                    Console.WriteLine("templeft : " + tempStepleft);
 
-                    int NormalRoute = YutGameUtil.Instance.NormalRoute(horse._nowPosition, calcPos);
+                    int NormalRoute = YutGameUtil.Instance.NormalRoute(startposition, calcPos);
                     if (NormalRoute != -1)
                     {
                         calcPos = NormalRoute;
@@ -322,17 +306,31 @@ namespace Server.Game
                         calcPos++;
                         tempStepleft--;
                     }
-                    checkDoMiniGame(horse, calcPos, true);
+                    horse._prevPosition = horse._nowPosition;
+                    horse._nowPosition = calcPos;
+                    Console.WriteLine("moving now position : " + horse._nowPosition);
+                    checkDoMiniGame(horse, true);
+
+                    if (horse._doDefenceGame && tempStepleft > 0)
+                    {
+                        _gamestate = GameState.Minione;
+                        _leftsteps = tempStepleft;
+                        Console.WriteLine("lets Defence");
+                        return;
+                    }
                 }
             }
-            horse._prevPosition = horse._nowPosition;
-            horse._nowPosition = calcPos;
-            if(horse._nowPosition >= 31)
+            if (horse._nowPosition >= 31)
             {
                 horse._nowPosition = 31;
                 horse._isgoal = true;
             }
-            checkDoMiniGame(horse, calcPos, false);
+            checkDoMiniGame(horse, false);
+            if (horse._doHammerGame)
+            {
+                _gamestate = GameState.Minitwo;
+                Console.WriteLine("lets hammer");
+            }
         }
 
         void MoveBindYut(YutHorse horse, int stepsLeft)
@@ -414,7 +412,7 @@ namespace Server.Game
             }
         }
 
-        void checkDoMiniGame(YutHorse movinghorse, int calcposition, bool ismoving)
+        void checkDoMiniGame(YutHorse movinghorse, bool ismoving)
         {
             for (int i = 0; i < _numOfPlayer; i++)
             {
@@ -423,23 +421,19 @@ namespace Server.Game
                     for (int j = 0; j < _numofHorse; j++)
                     {
                         if (_playerArray[i]._horses[j]._isgoal) continue; // Skip to the next j if _isgoal is true
-                        if (calcposition == _playerArray[i]._horses[j]._nowPosition)
+                        if (movinghorse._nowPosition == _playerArray[i]._horses[j]._nowPosition)
                         {
                             movinghorse.fighthorse = _playerArray[i]._horses[j];
-                            movinghorse._fightPosition = calcposition;
 
                             if (ismoving)
                             {
                                 movinghorse._doDefenceGame = true;
-                                movinghorse._fightPosition = calcposition;
-                                movinghorse.fighthorse = _playerArray[i]._horses[j];
+                                movinghorse._fightPosition = movinghorse._prevPosition;
                             }
                             else
                             {
                                 movinghorse._doDefenceGame = false;
                                 movinghorse._doHammerGame = true;
-                                movinghorse._fightPosition = calcposition;
-                                movinghorse.fighthorse = _playerArray[i]._horses[j];
                             }
                         }
                     }
@@ -448,6 +442,7 @@ namespace Server.Game
         }
 
         #region HammerGame
+        bool _game2end = false;
         void HammerGameEnd(Player winplayer)
         {
             Console.WriteLine("Yut Catched");
@@ -461,7 +456,7 @@ namespace Server.Game
                 }
                 if (movehorse.fighthorse._isbind)
                 {
-                    pluschance = movehorse.fighthorse.bindhorseList.Count + 1;
+                    pluschance = 1;
                     foreach (YutHorse losehorse in movehorse.fighthorse.bindhorseList)
                     {
                         YutGotoStart(losehorse);
@@ -576,10 +571,11 @@ namespace Server.Game
 
             Broadcast(resMovePacket);
 
-            if (player.Info.PosInfo.PosY <= 10)
+            if (player.Info.PosInfo.PosY <= 10 && _game2end == false)
             {
                 PlayerDie(player, false);
                 Console.WriteLine("die fall");
+                _game2end = true;
             }
         }
 
@@ -757,20 +753,38 @@ namespace Server.Game
 
         #endregion HammerGame
 
+
         #region DefenceGame
-        List<Vector3Int> previousPositions = new List<Vector3Int>();
+
+        List<PosinfoInt> previousPositions = new List<PosinfoInt>();
         Vector3 playerPosition = new Vector3();
-        public void DefenceGameInit()
+        bool _defence_attacked = false;
+        public void UpdateRound()
         {
+            if(_gamestate != GameState.Minione) return;
+
+            previousPositions.Clear();
             CreateObstacle();
-            playerPosition = new Vector3(-9.807433f, 6.361557f, -28.29243f);
+            _defence_attacked = false;
+
+            S_UpdateRound roundPacket = new S_UpdateRound();
+            roundPacket.PlayerPos = new PositionInfo();
+            roundPacket.PlayerPos.PosX = playerPosition.X;
+            roundPacket.PlayerPos.PosX = 0;
+            roundPacket.PlayerPos.PosZ = playerPosition.Z;
+            
+            foreach(PosinfoInt boxpos in previousPositions)
+            {
+                roundPacket.BoxPos.Add(boxpos);
+            }
+            Broadcast(roundPacket);
         }
 
         public void CreateObstacle()
         {
             for(int i = 0; i < 3; i++)
             {
-                Vector3Int newPosition;
+                PosinfoInt newPosition;
                 do
                 {
                     // x축 랜덤
@@ -778,22 +792,24 @@ namespace Server.Game
 
                     // z축 랜덤
                     int posZ = random.Next(0, 4);
-                    newPosition = new Vector3Int(posX, 0, posZ);
+                    newPosition = new PosinfoInt();
+                    newPosition.PosX = posX;
+                    newPosition.PosZ = posZ;
                 } while (IsPositionInvalid(newPosition, previousPositions));
 
                 previousPositions.Add(newPosition); // 새 위치를 리스트에 추가
             }
         }
 
-        bool IsPositionInvalid(Vector3Int newPosition, List<Vector3Int> previousPositions)
+        bool IsPositionInvalid(PosinfoInt newPosition, List<PosinfoInt> previousPositions)
         {
             if(previousPositions.Count == 0) return false;
 
-            foreach (Vector3Int prevPosition in previousPositions)
+            foreach (PosinfoInt prevPosition in previousPositions)
             {
                 if (IsAdjacentDiagonally(newPosition, prevPosition) ||
-                    newPosition.x == prevPosition.x ||
-                    newPosition.z == prevPosition.z)
+                    newPosition.PosX == prevPosition.PosX ||
+                    newPosition.PosZ == prevPosition.PosZ)
                 {
                     return true;
                 }
@@ -801,17 +817,17 @@ namespace Server.Game
             return false;
         }
 
-        bool IsAdjacentDiagonally(Vector3Int pos1, Vector3Int pos2)
+        bool IsAdjacentDiagonally(PosinfoInt pos1, PosinfoInt pos2)
         {
-            return (pos1.x - pos2.x == 1 && pos1.z - pos2.z == 1) ||   // top-right
-                   (pos1.x - pos2.x == -1 && pos1.z - pos2.z == 1) ||  // top-left
-                   (pos1.x - pos2.x == 1 && pos1.z - pos2.z == -1) ||  // bottom-right
-                   (pos1.x - pos2.x == -1 && pos1.z - pos2.z == -1);   // bottom-left
+            return (pos1.PosX - pos2.PosX == 1 && pos1.PosZ - pos2.PosZ == 1) ||   // top-right
+                   (pos1.PosX - pos2.PosX == -1 && pos1.PosZ - pos2.PosZ == 1) ||  // top-left
+                   (pos1.PosX - pos2.PosX == 1 && pos1.PosZ - pos2.PosZ == -1) ||  // bottom-right
+                   (pos1.PosX - pos2.PosX == -1 && pos1.PosZ - pos2.PosZ == -1);   // bottom-left
         }
 
         public void HandleSelectWall(int selectwall)
         {
-            //if(_gamestate != GameState.Minione) return;
+            if(_gamestate != GameState.Minione) return;
             if(selectwall == 0) return;
 
             S_SelectWall wallPacket = new S_SelectWall();
@@ -822,11 +838,66 @@ namespace Server.Game
 
         public void HandleAttackWall()
         {
+            if (_gamestate != GameState.Minione) return;
             S_AttackWall attackPacket = new S_AttackWall();
             Broadcast(attackPacket);
         }
 
+        public void HandleDefMove(float posx, float posz)
+        {
+            if (_gamestate != GameState.Minione) return;
+            S_DefMove movePacket = new S_DefMove();
+            movePacket.Posinfo = new PositionInfo();
+            movePacket.Posinfo.PosX = posx;
+            movePacket.Posinfo.PosZ = posz;
+            movePacket.Posinfo.PosY = 0;
+            Broadcast(movePacket);
+
+        }
+
+        public void HandlePlayerCollision()
+        {
+            if (_gamestate != GameState.Minione) return;
+            if (_defence_attacked) return;
+
+            _defence_attacked = true;
+            S_PlayerCollision colPacket = new S_PlayerCollision();
+            Broadcast(colPacket);
+
+            int winplayer = (_nowTurn == 0 ? 1 : 0);
+            DefgameEnd(winplayer);
+        }
+
+        public void DefgameEnd(int winplayer)
+        {
+            if (winplayer == _nowTurn)
+            {
+                Console.WriteLine("now turn win");
+                movehorse._fightPosition = 0;
+
+                YutMove(movehorse, steps[_leftsteps]);
+                MoveBindYut(movehorse, steps[_leftsteps]);
+            }
+            else
+            {
+                Console.WriteLine("enemy win");
+                _leftsteps = 0;
+                movehorse._nowPosition = movehorse._fightPosition;
+                foreach (YutHorse bindhorse in movehorse.bindhorseList)
+                {
+                    bindhorse._nowPosition = movehorse._fightPosition;
+                }
+                movehorse._fightPosition = 0;
+            }
+            HorseBind(movehorse);
+
+            nextturn();
+            //CalcHorseDestination();
+        }
+
         #endregion DefenceGame
+
+
         public void MiniGameStart()
         {
             _minigameReady += 1;
@@ -851,15 +922,22 @@ namespace Server.Game
 
             if (_gamestate == GameState.Minione)
             {
-
+                _gamestate = GameState.Yutgame;
+                Console.WriteLine("def game end");
             }
 
             if (_gamestate == GameState.Minitwo)
             {
                 DespawnMini2();
+                _game2end = false;
                 _gamestate = GameState.Yutgame;
+                Console.WriteLine("ham game end");
+
+                nextturn();
             }
 
+            Console.WriteLine("yut pos : {0} {1} {2} {3}", _playerArray[0]._horses[0]._nowPosition, _playerArray[0]._horses[1]._nowPosition, _playerArray[0]._horses[2]._nowPosition, _playerArray[0]._horses[3]._nowPosition);
+            Console.WriteLine("yut pos : {0} {1} {2} {3}", _playerArray[1]._horses[0]._nowPosition, _playerArray[1]._horses[1]._nowPosition, _playerArray[1]._horses[2]._nowPosition, _playerArray[1]._horses[3]._nowPosition);
             _minigameendReady = 0;
         }
 
