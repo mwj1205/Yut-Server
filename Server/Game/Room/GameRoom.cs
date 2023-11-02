@@ -131,7 +131,7 @@ namespace Server.Game
             else _gamestate = GameState.Yutgame;
 
             // 처음 턴 결정
-            _nowTurn = random.Next(_numOfPlayer);
+            _nowTurn = 0;
             _yutChance = 1;
 
             S_StartGame startGamePacket = new S_StartGame();
@@ -219,7 +219,7 @@ namespace Server.Game
                     Broadcast(yutpacket);
 
                     Console.WriteLine("can't move backdo");
-                    steps.Remove(yutmovePacket.UseResult);
+                    steps.RemoveAt(yutmovePacket.UseResult);
                     nextturn();
                     return;
                 }
@@ -316,6 +316,7 @@ namespace Server.Game
                         _gamestate = GameState.Minione;
                         _leftsteps = tempStepleft;
                         Console.WriteLine("lets Defence");
+                        horse._doDefenceGame = false;
                         return;
                     }
                 }
@@ -685,14 +686,16 @@ namespace Server.Game
             if (_playerArray[_nowTurn] != player)
             {
                 winplayer = _nowTurn;
+                Console.WriteLine("ham game win : nowturn");
             }
             else
             {
                 winplayer = _nowTurn + 1;
-                if (winplayer <= _numOfPlayer) 
+                if (winplayer >= _numOfPlayer) 
                 {
                     winplayer = 0;
                 }
+                Console.WriteLine("ham game win : enemy");
             }
 
             HammerGameEnd(_playerArray[winplayer]);
@@ -759,9 +762,15 @@ namespace Server.Game
         List<PosinfoInt> previousPositions = new List<PosinfoInt>();
         Vector3 playerPosition = new Vector3();
         bool _defence_attacked = false;
+        bool roundalreadyupdated = false;
+
         public void UpdateRound()
         {
             if(_gamestate != GameState.Minione) return;
+            if(roundalreadyupdated == true)
+            {
+                return;
+            }
 
             previousPositions.Clear();
             CreateObstacle();
@@ -905,7 +914,7 @@ namespace Server.Game
 
             if (_gamestate == GameState.Minione)
             {
-
+                UpdateRound();
             }
 
             if(_gamestate == GameState.Minitwo)

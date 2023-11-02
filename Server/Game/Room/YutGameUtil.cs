@@ -41,17 +41,17 @@ namespace Server.Game
         {
             int randomNumber = random.Next(1, 101); // 1부터 100 사이의 랜덤 숫자 생성
 
-            if (randomNumber <= 3) // 확률 3%
-                return YutResult.Nak;
-            else if (randomNumber <= 7) // 확률 4%
+            //if (randomNumber <= 3) // 확률 3%
+            //    return YutResult.Nak;
+            if (randomNumber <= 5) // 확률 5%
                 return YutResult.Backdo;
-            else if (randomNumber <= 25) // 확률 18%
+            else if (randomNumber <= 25) // 확률 20%
                 return YutResult.Do;
-            else if (randomNumber <= 55) // 확률 30%
+            else if (randomNumber <= 57) // 확률 32%
                 return YutResult.Gae;
-            else if (randomNumber <= 83) // 확률 28%
+            else if (randomNumber <= 85) // 확률 28%
                 return YutResult.Geol;
-            else if (randomNumber <= 96) // 확률 13%
+            else if (randomNumber <= 96) // 확률 11%
                 return YutResult.Yut;
             else // 확률 4%
                 return YutResult.Mo;
