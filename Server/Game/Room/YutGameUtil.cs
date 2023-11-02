@@ -81,6 +81,30 @@ namespace Server.Game
             }
         }
 
+        public YutResult convertNumtoYut(int result)
+        {
+            switch (result)
+            {
+                case -1:
+                    return YutResult.Backdo;
+                case 0:
+                    return YutResult.Nak;
+                case 1:
+                    return YutResult.Do;
+                case 2:
+                    return YutResult.Gae;
+                case 3:
+                    return YutResult.Geol;
+                case 4:
+                    return YutResult.Yut;
+                case 5:
+                    return YutResult.Mo;
+                default: 
+                    Console.WriteLine("error");
+                    return YutResult.Nak;
+            }
+        }
+
         public int BackdoRoute(YutHorse horse)
         {
             int position = horse._nowPosition;

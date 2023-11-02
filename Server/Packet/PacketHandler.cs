@@ -273,4 +273,20 @@ class PacketHandler
             return;
         room.Push(room.MiniGameEnd);
     }
+
+    public static void C_ThreedYutThrowHandler(PacketSession session, IMessage packet)
+    {
+        ClientSession clientSession = session as ClientSession;
+        C_ThreedYutThrow throwPacket = packet as C_ThreedYutThrow;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null)
+            return;
+
+        GameRoom room = player.Room;
+        if (room == null)
+            return;
+
+        room.Push(room.HandleThreedThrowYut, throwPacket.Result, throwPacket.Isbackdo);
+    }
 }

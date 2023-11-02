@@ -186,6 +186,27 @@ namespace Server.Game
                 //CalcHorseDestination();
         }
 
+        public void HandleThreedThrowYut(int result, bool isbackdo)
+        {
+            S_ThrowYut throwyutPacket = new S_ThrowYut();
+
+            int yutresult = result;
+            if (yutresult == 0) yutresult = 5;
+            else if (yutresult == 1 && isbackdo) yutresult = -1;
+
+            YutResult randomyut = YutGameUtil.Instance.convertNumtoYut(yutresult);
+            throwyutPacket.Result = randomyut;
+            steps.Add(yutresult);
+
+            if (!(randomyut == YutResult.Yut) && !(randomyut == YutResult.Mo))
+            {
+                _yutChance--;
+            }
+
+            Broadcast(throwyutPacket);
+            Console.WriteLine(randomyut);
+        }
+
         public void HandleYutMove(Player player, C_YutMove yutmovePacket)
         {
             if (player == null)
