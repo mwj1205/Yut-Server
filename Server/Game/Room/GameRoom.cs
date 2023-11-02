@@ -251,6 +251,7 @@ namespace Server.Game
             Console.WriteLine("yut pos : {0} {1} {2} {3}", _playerArray[1]._horses[0]._nowPosition, _playerArray[1]._horses[1]._nowPosition, _playerArray[1]._horses[2]._nowPosition, _playerArray[1]._horses[3]._nowPosition);
             if (steps.Count <= 0 && _yutChance <= 0 && !(_gamestate == GameState.Minione || _gamestate == GameState.Minitwo))
             {
+                Console.WriteLine("moving end");
                 nextturn();
             }
 
@@ -295,7 +296,7 @@ namespace Server.Game
                 {
                     Console.WriteLine("templeft : " + tempStepleft);
 
-                    int NormalRoute = YutGameUtil.Instance.NormalRoute(startposition, calcPos);
+                    int NormalRoute = YutGameUtil.Instance.NormalRoute(calcPos, startposition);
                     if (NormalRoute != -1)
                     {
                         calcPos = NormalRoute;
@@ -316,6 +317,7 @@ namespace Server.Game
                         _gamestate = GameState.Minione;
                         _leftsteps = tempStepleft;
                         Console.WriteLine("lets Defence");
+                        Console.WriteLine("left steps : " + _leftsteps);
                         horse._doDefenceGame = false;
                         return;
                     }
@@ -769,8 +771,10 @@ namespace Server.Game
             if(_gamestate != GameState.Minione) return;
             if(roundalreadyupdated == true)
             {
+                roundalreadyupdated = false;
                 return;
             }
+            roundalreadyupdated = true;
 
             previousPositions.Clear();
             CreateObstacle();
@@ -879,13 +883,16 @@ namespace Server.Game
 
         public void DefgameEnd(int winplayer)
         {
+            if (_gamestate != GameState.Minione) return;
+            _gamestate = GameState.Yutgame;
+
             if (winplayer == _nowTurn)
             {
                 Console.WriteLine("now turn win");
                 movehorse._fightPosition = 0;
 
-                YutMove(movehorse, steps[_leftsteps]);
-                MoveBindYut(movehorse, steps[_leftsteps]);
+                YutMove(movehorse, _leftsteps);
+                MoveBindYut(movehorse, _leftsteps);
             }
             else
             {
@@ -900,6 +907,7 @@ namespace Server.Game
             }
             HorseBind(movehorse);
 
+            Console.WriteLine("def game end next turn");
             nextturn();
             //CalcHorseDestination();
         }
@@ -914,6 +922,7 @@ namespace Server.Game
 
             if (_gamestate == GameState.Minione)
             {
+                roundalreadyupdated = false;
                 UpdateRound();
             }
 
@@ -931,7 +940,6 @@ namespace Server.Game
 
             if (_gamestate == GameState.Minione)
             {
-                _gamestate = GameState.Yutgame;
                 Console.WriteLine("def game end");
             }
 
@@ -941,7 +949,6 @@ namespace Server.Game
                 _game2end = false;
                 _gamestate = GameState.Yutgame;
                 Console.WriteLine("ham game end");
-
                 nextturn();
             }
 

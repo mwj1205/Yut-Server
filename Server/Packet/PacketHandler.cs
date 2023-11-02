@@ -256,7 +256,7 @@ class PacketHandler
         GameRoom room = player.Room;
         if (room == null)
             return;
-
+        Console.WriteLine("play Minigame");
         room.Push(room.MiniGameStart);
     }
 
